@@ -1,0 +1,68 @@
+{"event": "request_start", "ts": 1778767153.004042, "conv_id": "781889476f994710be67c7e363e69291", "msg_len": 15, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1778767153.0497541, "elapsed_ms": 33.9, "conv_id": "781889476f994710be67c7e363e69291", "history_msgs": 4}
+{"event": "kv_cache_miss", "ts": 1778767154.689735, "prefix": "supervisor", "key": "llm:supe", "llm_ms": 1634.1}
+{"event": "intent_classify", "ts": 1778767154.6899798, "path": "llm_path", "route": "general_agent", "raw": "general_agent", "query_preview": "你觉得他这个主题绘画 写的如何"}
+{"event": "kv_cache_miss", "ts": 1778767165.0247092, "prefix": "reflection", "key": "llm:refl", "llm_ms": 2319.1}
+{"event": "reflection_done", "ts": 1778767165.024905, "agent": "general_agent", "loop": 0, "score": 8, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1778767168.879149, "conv_id": "781889476f994710be67c7e363e69291", "elapsed_ms": 15875.0, "response_tokens": 272, "response_chars": 485}
+{"event": "memory.summarize", "ts": 1778767168.904097, "elapsed_ms": 10.0, "conv_id": "781889476f994710be67c7e363e69291"}
+{"event": "memory.extract_facts", "ts": 1778767173.1975539, "elapsed_ms": 4293.4, "conv_id": "781889476f994710be67c7e363e69291"}
+{"event": "request_start", "ts": 1778770649.14835, "conv_id": "781889476f994710be67c7e363e69291", "msg_len": 22, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1778770649.217262, "elapsed_ms": 55.7, "conv_id": "781889476f994710be67c7e363e69291", "history_msgs": 6}
+{"event": "kv_cache_miss", "ts": 1778770650.5291252, "prefix": "supervisor", "key": "llm:supe", "llm_ms": 1303.4}
+{"event": "intent_classify", "ts": 1778770650.529388, "path": "llm_path", "route": "general_agent", "raw": "general_agent", "query_preview": "我如果想做个龙门石窟的vlog 你觉得怎么做"}
+{"event": "kv_cache_miss", "ts": 1778770663.798027, "prefix": "reflection", "key": "llm:refl", "llm_ms": 1353.4}
+{"event": "reflection_done", "ts": 1778770663.798635, "agent": "general_agent", "loop": 0, "score": 9, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1778770670.632907, "conv_id": "781889476f994710be67c7e363e69291", "elapsed_ms": 21484.4, "response_tokens": 493, "response_chars": 848}
+{"event": "memory.summarize", "ts": 1778770670.6707468, "elapsed_ms": 10.5, "conv_id": "781889476f994710be67c7e363e69291"}
+{"event": "memory.extract_facts", "ts": 1778770675.043256, "elapsed_ms": 4372.4, "conv_id": "781889476f994710be67c7e363e69291"}
+{"event": "request_start", "ts": 1778891618.933125, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b", "msg_len": 5, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": true}
+{"event": "memory.build_context", "ts": 1778891619.096093, "elapsed_ms": 145.3, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b", "history_msgs": 2}
+{"event": "intent_classify", "ts": 1778891619.104762, "path": "no_keyword_path", "route": "general_agent", "query_preview": "今天啥温度"}
+{"event": "reflection_done", "ts": 1778891622.483932, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1778891622.493508, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b", "elapsed_ms": 3559.5, "response_tokens": 49, "response_chars": 78}
+{"event": "memory.summarize", "ts": 1778891622.539062, "elapsed_ms": 15.6, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b"}
+{"event": "memory.extract_facts", "ts": 1778891623.5048761, "elapsed_ms": 965.7, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b"}
+{"event": "memory.extract_memories", "ts": 1778891624.540904, "elapsed_ms": 1024.4, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b"}
+{"event": "profile.update", "ts": 1778891626.326188, "elapsed_ms": 1774.0, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b"}
+{"event": "suggestions.generate", "ts": 1778891632.5326688, "elapsed_ms": 6206.4, "conv_id": "efc279cec3ea46d39d342cd7cc4f5f1b"}
+{"event": "request_start", "ts": 1778940055.485364, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027", "msg_len": 15, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1778940055.56834, "elapsed_ms": 78.9, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027", "history_msgs": 4}
+{"event": "intent_classify", "ts": 1778940055.574671, "path": "no_keyword_path", "route": "general_agent", "query_preview": "你觉得我应该如何才能完成目标啊"}
+{"event": "reflection_done", "ts": 1778940062.73063, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1778940062.732494, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027", "elapsed_ms": 7245.8, "response_tokens": 250, "response_chars": 452}
+{"event": "memory.summarize", "ts": 1778940062.7660291, "elapsed_ms": 13.0, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027"}
+{"event": "memory.extract_facts", "ts": 1778940064.492435, "elapsed_ms": 1726.2, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027"}
+{"event": "memory.extract_memories", "ts": 1778940067.347548, "elapsed_ms": 2842.7, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027"}
+{"event": "profile.update", "ts": 1778940068.2807648, "elapsed_ms": 923.3, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027"}
+{"event": "suggestions.generate", "ts": 1778940072.1757388, "elapsed_ms": 3894.8, "conv_id": "0b8e6dd4dfb7415b92ebd46a987fc027"}
+{"event": "request_start", "ts": 1778944638.973235, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "msg_len": 5, "has_file": true, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": true}
+{"event": "memory.build_context", "ts": 1778944639.0733, "elapsed_ms": 86.5, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "history_msgs": 3}
+{"event": "intent_classify", "ts": 1778944639.0833652, "path": "no_keyword_path", "route": "general_agent", "query_preview": "[Attached file: CLAUDE.md]\n<file_content>\n# CLAUDE.md\n\n> 本文件"}
+{"event": "reflection_done", "ts": 1778944649.5719721, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1778944649.574029, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "elapsed_ms": 10599.0, "response_tokens": 312, "response_chars": 677}
+{"event": "memory.summarize", "ts": 1778944649.621832, "elapsed_ms": 12.0, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "memory.extract_facts", "ts": 1778944653.290059, "elapsed_ms": 3668.0, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "memory.extract_memories", "ts": 1778944663.263686, "elapsed_ms": 9964.7, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "profile.update", "ts": 1778944664.286171, "elapsed_ms": 1013.0, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "suggestions.generate", "ts": 1778944668.118488, "elapsed_ms": 3832.1, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "request_start", "ts": 1778944795.944053, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "msg_len": 23, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1778944795.979116, "elapsed_ms": 33.5, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "history_msgs": 5}
+{"event": "intent_classify", "ts": 1778944795.983213, "path": "no_keyword_path", "route": "general_agent", "query_preview": "所以每次claude会按照这个来理解项目 是吧"}
+{"event": "reflection_done", "ts": 1778944801.942102, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1778944801.943855, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "elapsed_ms": 5999.0, "response_tokens": 117, "response_chars": 229}
+{"event": "memory.summarize", "ts": 1778944801.9842272, "elapsed_ms": 14.3, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "memory.extract_facts", "ts": 1778944805.992078, "elapsed_ms": 4007.5, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "memory.extract_memories", "ts": 1778944810.202142, "elapsed_ms": 4204.9, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "request_start", "ts": 1778944810.749928, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "msg_len": 5, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1778944810.8207612, "elapsed_ms": 70.2, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "history_msgs": 7}
+{"event": "intent_classify", "ts": 1778944810.823422, "path": "no_keyword_path", "route": "general_agent", "query_preview": "会有例外吗"}
+{"event": "profile.update", "ts": 1778944815.766413, "elapsed_ms": 5545.7, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "reflection_done", "ts": 1778944816.172647, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1778944816.17615, "conv_id": "e9b54c15c77b4c529e286a64f553988f", "elapsed_ms": 5425.9, "response_tokens": 129, "response_chars": 232}
+{"event": "memory.summarize", "ts": 1778944816.238275, "elapsed_ms": 12.9, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "memory.extract_facts", "ts": 1778944819.428262, "elapsed_ms": 3189.8, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "suggestions.generate", "ts": 1778944820.0635781, "elapsed_ms": 4296.9, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "memory.extract_memories", "ts": 1778944821.792516, "elapsed_ms": 2353.0, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "profile.update", "ts": 1778944822.710717, "elapsed_ms": 912.8, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "suggestions.generate", "ts": 1778944826.5027132, "elapsed_ms": 3791.8, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
