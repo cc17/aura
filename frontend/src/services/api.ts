@@ -144,7 +144,7 @@ export interface SkillDef {
   description: string;
   industry: string | null;
   role: string | null;
-  input_schema: { fields: Array<{ name: string; type: string; label: string; required: boolean }> };
+  input_schema: { fields: Array<{ name: string; type: "text" | "textarea" | "url"; label: string; required: boolean }> };
 }
 
 export interface MarketSkill extends SkillDef {

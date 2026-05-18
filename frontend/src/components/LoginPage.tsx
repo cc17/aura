@@ -1,8 +1,9 @@
-import { FormEvent, useState } from "react";
+import { useState } from "react";
+import type { FormEvent } from "react";
 
 interface Props {
-  onLogin: (username: string, password: string) => Promise<void>;
-  onRegister: (username: string, password: string) => Promise<void>;
+  onLogin: (username: string, password: string) => Promise<unknown>;
+  onRegister: (username: string, password: string) => Promise<unknown>;
 }
 
 export function LoginPage({ onLogin, onRegister }: Props) {
