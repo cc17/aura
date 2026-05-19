@@ -120,6 +120,16 @@ def _build_graph(model: str | None = None):
     ppt_node = create_ppt_agent(model=settings.default_model)
     research_node = create_research_agent(model=settings.default_model)
 
+    async def clarify_node(state: AuraState) -> dict[str, Any]:
+        from langchain_core.messages import AIMessage
+        msg = AIMessage(content=(
+            "我看到你上传了一个文件，你主要想让我做什么？\n\n"
+            "**1. 简历优化 / 求职建议** — 帮你改简历、找匹配岗位\n"
+            "**2. 内容分析 / 信息提取** — 读懂文档、整理要点\n"
+            "**3. 其他** — 直接说你的需求"
+        ))
+        return {"messages": [msg], "active_agent": "clarify"}
+
     # ── Supervisor node ───────────────────────────────────────────────────────
     async def supervisor_node(state: AuraState) -> dict[str, Any]:
         messages = state["messages"]
@@ -127,36 +137,53 @@ def _build_graph(model: str | None = None):
             return {"route_decision": "general_agent"}
 
         # Stage 1: keyword fast-path (zero LLM cost)
+        import re as _re
         last_user_text = ""
         for m in reversed(messages):
             if hasattr(m, "type") and m.type == "human":
                 last_user_text = m.content if isinstance(m.content, str) else ""
                 break
 
-        fast: IntentResult | None = fast_classify(last_user_text)
+        # Strip embedded file content before intent matching — file body pollutes
+        # keyword signals (e.g. a resume with "research experience" triggers research_agent)
+        has_file = "[Attached file:" in last_user_text
+        user_words = _re.sub(
+            r"\[Attached file:[^\]]*\]\s*<file_content>.*?</file_content>\s*",
+            "",
+            last_user_text,
+            flags=_re.DOTALL,
+        ).strip()
+
+        # If file present but user's own words carry no clear intent → ask
+        if has_file and not has_routing_keywords(user_words):
+            logger.info("Supervisor: file with ambiguous intent → clarify")
+            trace("intent_classify", path="clarify", route="clarify", query_preview=user_words[:60])
+            return {"route_decision": "clarify"}
+
+        fast: IntentResult | None = fast_classify(user_words)
         if fast is not None:
             route = f"{fast.intent}_agent"
             logger.info(
                 "Supervisor fast-path → %s (conf=%.2f, kw=%r)",
-                route, fast.confidence, last_user_text[:60],
+                route, fast.confidence, user_words[:60],
             )
             trace(
                 "intent_classify",
                 path="fast_path",
                 route=route,
                 confidence=fast.confidence,
-                query_preview=last_user_text[:60],
+                query_preview=user_words[:60],
             )
             return {"route_decision": route}
 
         # No routing keywords at all → definitely general, skip LLM
-        if not has_routing_keywords(last_user_text):
+        if not has_routing_keywords(user_words):
             logger.info("Supervisor no-keyword path → general_agent")
             trace(
                 "intent_classify",
                 path="no_keyword_path",
                 route="general_agent",
-                query_preview=last_user_text[:60],
+                query_preview=user_words[:60],
             )
             return {"route_decision": "general_agent"}
 
@@ -176,7 +203,11 @@ def _build_graph(model: str | None = None):
         return {"route_decision": route}
 
     def route_after_supervisor(state: AuraState) -> str:
-        return state.get("route_decision", "general_agent")
+        decision = state.get("route_decision", "general_agent")
+        # clarify is not a worker — route directly
+        if decision == "clarify":
+            return "clarify"
+        return decision
 
     # ── Reflection node ───────────────────────────────────────────────────────
     async def reflection_node(state: AuraState) -> dict[str, Any]:
@@ -268,6 +299,7 @@ def _build_graph(model: str | None = None):
     graph.add_node("gaokao_agent", gaokao_node)
     graph.add_node("ppt_agent", ppt_node)
     graph.add_node("research_agent", research_node)
+    graph.add_node("clarify", clarify_node)
     graph.add_node("reflection", reflection_node)
 
     graph.set_entry_point("supervisor")
@@ -281,8 +313,12 @@ def _build_graph(model: str | None = None):
             "gaokao_agent":   "gaokao_agent",
             "ppt_agent":      "ppt_agent",
             "research_agent": "research_agent",
+            "clarify":        "clarify",
         },
     )
+
+    # clarify goes directly to END — no reflection needed
+    graph.add_edge("clarify", END)
 
     # All workers feed into reflection
     for agent in WORKER_AGENTS:

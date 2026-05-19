@@ -31,7 +31,7 @@ from backend.graph.supervisor import WORKER_AGENTS, get_graph
 # Agents that stream tokens directly to the client without buffering.
 # They skip the reflection LLM call (reflection returns immediately) so
 # there is no retry risk — safe to stream before approval.
-_DIRECT_STREAM_AGENTS = frozenset({"general_agent"})
+_DIRECT_STREAM_AGENTS = frozenset({"general_agent", "clarify"})
 from backend.observability import trace
 
 logger = logging.getLogger(__name__)
@@ -114,6 +114,19 @@ class AgentCore:
                 name = event.get("name", "")
                 metadata = event.get("metadata", {})
                 node = metadata.get("langgraph_node", "")
+
+                # ── clarify node: emit static message directly ────────────
+                if kind == "on_chain_end" and node == "clarify" and not _done_sent:
+                    output = event.get("data", {}).get("output", {})
+                    msgs = output.get("messages", []) if isinstance(output, dict) else []
+                    if msgs:
+                        content = msgs[-1].content if hasattr(msgs[-1], "content") else str(msgs[-1])
+                        yield StreamEvent(event=StreamEventType.AGENT_START, data={"agent": "clarify"})
+                        yield StreamEvent(event=StreamEventType.TEXT_DELTA, data={"text": content})
+                        yield StreamEvent(event=StreamEventType.AGENT_END, data={"agent": "clarify"})
+                        yield StreamEvent(event=StreamEventType.DONE, data={})
+                        _done_sent = True
+                    continue
 
                 # ── agent start ───────────────────────────────────────────
                 if kind == "on_chain_start" and node in WORKER_AGENTS:
