@@ -4,7 +4,7 @@ Stage 1 (fast, zero-cost): keyword pattern matching, covers ~80 % of traffic.
 Stage 2 (LLM fallback):    supervisor LLM call for ambiguous / mixed intents.
 
 Intents:
-  resume   — resume writing, critique, ATS optimisation
+  career   — resume writing, job search, career exploration, ATS optimisation
   ppt      — slide deck creation, presentation, PowerPoint
   research — information gathering, market research, news collection
   gaokao   — college entrance exam, university selection, 志愿填报
@@ -20,9 +20,11 @@ from dataclasses import dataclass
 # Keyword tables
 # ---------------------------------------------------------------------------
 
-_RESUME_KW = re.compile(
+_CAREER_KW = re.compile(
     r"简历|resume|cv\b|求职信|cover letter|工作经历|自我介绍|职业目标|"
-    r"ats|竞争力|投简历|改简历|润色简历|简历修改|简历优化|简历点评",
+    r"ats|竞争力|投简历|改简历|润色简历|简历修改|简历优化|简历点评|"
+    r"找工作|求职|招聘|在招|岗位|跳槽|转行|换工作|投递|offer|"
+    r"职业规划|找份工作|找到工作|工作机会|哪些公司|什么岗位|应聘|面试机会|jd分析",
     re.IGNORECASE,
 )
 
@@ -45,25 +47,17 @@ _GAOKAO_KW = re.compile(
     re.IGNORECASE,
 )
 
-_JOB_SEARCH_KW = re.compile(
-    r"找工作|求职|招聘|在招|岗位|跳槽|转行|换工作|投递|offer|"
-    r"职业规划|找份工作|找到工作|找个工作|工作机会|job\s*search|hiring|"
-    r"哪些公司|什么公司|什么岗位|有没有岗|应聘|面试机会|jd分析|看看岗位",
-    re.IGNORECASE,
-)
-
 _INTENT_PATTERNS: list[tuple[str, re.Pattern]] = [
-    ("resume", _RESUME_KW),
+    ("career", _CAREER_KW),
     ("ppt", _PPT_KW),
     ("research", _RESEARCH_KW),
     ("gaokao", _GAOKAO_KW),
-    ("job_search", _JOB_SEARCH_KW),
 ]
 
 
 @dataclass
 class IntentResult:
-    intent: str          # one of: resume | ppt | research | gaokao | general
+    intent: str          # one of: career | ppt | research | gaokao | general
     confidence: float    # 0.0–1.0
     matched_by: str      # "keyword" | "llm" | "default"
 
@@ -100,14 +94,12 @@ def fast_classify(text: str) -> IntentResult | None:
 def map_llm_decision(decision: str) -> str:
     """Map a raw LLM routing token to a canonical intent name."""
     d = decision.strip().lower()
-    if "resume" in d or "简历" in d:
-        return "resume"
+    if any(kw in d for kw in ("career", "resume", "简历", "找工作", "求职", "招聘", "跳槽")):
+        return "career"
     if "ppt" in d or "幻灯" in d or "slide" in d:
         return "ppt"
     if "research" in d or "调研" in d or "资料" in d:
         return "research"
     if any(kw in d for kw in ("gaokao", "高考", "志愿", "录取", "报考")):
         return "gaokao"
-    if any(kw in d for kw in ("job_search", "job", "找工作", "求职", "招聘", "跳槽")):
-        return "job_search"
     return "general"

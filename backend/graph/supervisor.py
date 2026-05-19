@@ -6,18 +6,18 @@ Graph topology
      start ──────► │supervisor│
                     └────┬─────┘
                          │ route_decision
-              ┌──────────┼──────────────────────┐
-              ▼          ▼         ▼             ▼       ▼
-        general_agent  resume   gaokao_agent  ppt_agent  research_agent
-              └──────────┴──────────┘──────────┘──────────┘
-                                   │  all workers → reflection
-                              ┌────▼─────┐
-                              │reflection│
-                              └────┬─────┘
-                     loop_count<3  │  quality OK or loop>=3
-                  ┌────────────────┤
-                  ▼                ▼
-           back to worker         END
+         ┌───────────────┼──────────────────────┐
+         ▼               ▼         ▼             ▼
+   general_agent  career_agent  gaokao_agent  ppt_agent  research_agent
+         └───────────────┴──────────┘──────────┘
+                                │  all workers → reflection
+                           ┌────▼─────┐
+                           │reflection│
+                           └────┬─────┘
+                  loop_count<3  │  quality OK or loop>=3
+               ┌────────────────┤
+               ▼                ▼
+        back to worker         END
 
 KV cache
 ────────
@@ -37,12 +37,11 @@ from langgraph.graph import END, StateGraph
 from backend.agent.intent import IntentResult, fast_classify, has_routing_keywords, map_llm_decision
 from backend.config import settings
 from backend.observability import trace
+from backend.graph.agents.career import create_career_agent
 from backend.graph.agents.gaokao import create_gaokao_agent
 from backend.graph.agents.general import create_general_agent
-from backend.graph.agents.job_search import create_job_search_agent
 from backend.graph.agents.ppt import create_ppt_agent
 from backend.graph.agents.research import create_research_agent
-from backend.graph.agents.resume import create_resume_agent
 from backend.graph.state import AuraState
 from backend.llm.kv_cache import reflection_cache, supervisor_cache
 from backend.llm.langchain_bridge import create_chat_model
@@ -57,14 +56,13 @@ SUPERVISOR_PROMPT = (
     "You are a routing supervisor. Your ONLY job is to decide which specialist agent "
     "should handle the user's request. Reply with EXACTLY one word — the agent name.\n\n"
     "Available agents:\n"
-    "- resume_agent   : Resumes — writing, critique, ATS optimisation, career advice.\n"
+    "- career_agent   : Everything career-related — resume writing/critique/ATS, job search, "
+    "JD analysis, career positioning, which companies are hiring, switching careers.\n"
+    "  Keywords: 简历、改简历、找工作、求职、招聘、岗位、跳槽、转行、offer、职业规划\n"
     "- ppt_agent      : Presentations — create PowerPoint/slide decks on any topic.\n"
     "- research_agent : Research — gather information, news, market analysis, reports.\n"
     "- gaokao_agent   : Chinese college entrance exam (高考) — scores, majors, universities.\n"
     "  Keywords: 高考、志愿填报、录取分数线、报考、选专业、就业前景。\n"
-    "- job_search_agent: Job hunting — searching open positions, JD analysis, career positioning, "
-    "which companies are hiring, market intelligence for job seekers.\n"
-    "  Keywords: 找工作、求职、招聘、岗位、跳槽、转行、职业规划、JD分析、哪些公司在招\n"
     "- general_agent  : Everything else — chat, coding, Q&A, math, writing, etc.\n\n"
     "Reply with ONLY the agent name. No other text."
 )
@@ -91,7 +89,7 @@ REFLECTION_PROMPT = (
 _compiled_graph = None
 
 WORKER_AGENTS = frozenset(
-    ("general_agent", "resume_agent", "gaokao_agent", "ppt_agent", "research_agent", "job_search_agent")
+    ("general_agent", "career_agent", "gaokao_agent", "ppt_agent", "research_agent")
 )
 
 
@@ -117,11 +115,10 @@ def _build_graph(model: str | None = None):
 
     # Worker nodes
     general_node = create_general_agent(model=settings.default_model)
-    resume_node = create_resume_agent(model=settings.default_model)
+    career_node = create_career_agent(model=settings.default_model)
     gaokao_node = create_gaokao_agent(model=settings.default_model)
     ppt_node = create_ppt_agent(model=settings.default_model)
     research_node = create_research_agent(model=settings.default_model)
-    job_search_node = create_job_search_agent(model=settings.default_model)
 
     # ── Supervisor node ───────────────────────────────────────────────────────
     async def supervisor_node(state: AuraState) -> dict[str, Any]:
@@ -267,11 +264,10 @@ def _build_graph(model: str | None = None):
 
     graph.add_node("supervisor", supervisor_node)
     graph.add_node("general_agent", general_node)
-    graph.add_node("resume_agent", resume_node)
+    graph.add_node("career_agent", career_node)
     graph.add_node("gaokao_agent", gaokao_node)
     graph.add_node("ppt_agent", ppt_node)
     graph.add_node("research_agent", research_node)
-    graph.add_node("job_search_agent", job_search_node)
     graph.add_node("reflection", reflection_node)
 
     graph.set_entry_point("supervisor")
@@ -280,12 +276,11 @@ def _build_graph(model: str | None = None):
         "supervisor",
         route_after_supervisor,
         {
-            "general_agent":    "general_agent",
-            "resume_agent":     "resume_agent",
-            "gaokao_agent":     "gaokao_agent",
-            "ppt_agent":        "ppt_agent",
-            "research_agent":   "research_agent",
-            "job_search_agent": "job_search_agent",
+            "general_agent":  "general_agent",
+            "career_agent":   "career_agent",
+            "gaokao_agent":   "gaokao_agent",
+            "ppt_agent":      "ppt_agent",
+            "research_agent": "research_agent",
         },
     )
 
@@ -297,13 +292,12 @@ def _build_graph(model: str | None = None):
         "reflection",
         route_after_reflection,
         {
-            "general_agent":    "general_agent",
-            "resume_agent":     "resume_agent",
-            "gaokao_agent":     "gaokao_agent",
-            "ppt_agent":        "ppt_agent",
-            "research_agent":   "research_agent",
-            "job_search_agent": "job_search_agent",
-            END:                END,
+            "general_agent":  "general_agent",
+            "career_agent":   "career_agent",
+            "gaokao_agent":   "gaokao_agent",
+            "ppt_agent":      "ppt_agent",
+            "research_agent": "research_agent",
+            END:              END,
         },
     )
 
