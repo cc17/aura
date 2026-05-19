@@ -7,7 +7,7 @@ import { Sidebar } from "./components/Sidebar";
 import { MoreView } from "./components/MoreView";
 import { LoginPage } from "./components/LoginPage";
 import { OnboardingModal } from "./components/OnboardingModal";
-import { SkillCards } from "./components/SkillCards";
+import { EmptyStateCards } from "./components/EmptyStateCards";
 import { SkillPanel } from "./components/SkillPanel";
 import { SuggestionsBar } from "./components/SuggestionsBar";
 import { ProfilePage } from "./components/ProfilePage";
@@ -167,7 +167,10 @@ export default function App() {
                     <h2 className="empty-state-title">你好，{user?.username}</h2>
                     <p className="empty-state-sub">今天想做什么？</p>
                   </div>
-                  <SkillCards onSelect={(skill) => setPendingSkillKey(skill.skill_key)} />
+                  <EmptyStateCards
+                    onSelectSkill={(skillKey) => setPendingSkillKey(skillKey)}
+                    onSendMessage={(text) => sendMessage(text, selectedModel)}
+                  />
                 </div>
               ) : (
                 <ChatWindow messages={messages} isStreaming={isStreaming} />

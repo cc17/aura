@@ -70,9 +70,15 @@ export function MessageBubble({ message, isStreaming }: Props) {
       {hasThinking && (
         <div className="thinking-panel">
           <ul className="thinking-steps">
-            {message.thinkingSteps!.map((step, i) => (
-              <li key={i}>{step}</li>
-            ))}
+            {message.thinkingSteps!.map((step, i) => {
+              const isLast = i === message.thinkingSteps!.length - 1;
+              return (
+                <li key={i} className={isLast && isStreaming ? "thinking-step-active" : ""}>
+                  {step}
+                  {isLast && isStreaming && <span className="thinking-spinner" />}
+                </li>
+              );
+            })}
           </ul>
         </div>
       )}

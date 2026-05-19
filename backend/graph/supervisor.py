@@ -136,13 +136,32 @@ def _build_graph(model: str | None = None):
         if not messages:
             return {"route_decision": "general_agent"}
 
-        # Stage 1: keyword fast-path (zero LLM cost)
+        # Stage 0: detect if user is responding to our clarification question
         import re as _re
         last_user_text = ""
+        prev_ai_text = ""
         for m in reversed(messages):
-            if hasattr(m, "type") and m.type == "human":
+            if hasattr(m, "type") and m.type == "human" and not last_user_text:
                 last_user_text = m.content if isinstance(m.content, str) else ""
+            elif hasattr(m, "type") and m.type == "ai" and not prev_ai_text:
+                prev_ai_text = m.content if isinstance(m.content, str) else ""
+            if last_user_text and prev_ai_text:
                 break
+
+        if "简历优化" in prev_ai_text and "内容分析" in prev_ai_text:
+            resp = last_user_text.strip()
+            if resp == "1" or any(kw in resp for kw in ("简历", "求职", "改", "优化", "career")):
+                logger.info("Supervisor: clarify response → career_agent")
+                return {"route_decision": "career_agent"}
+            elif resp == "2" or any(kw in resp for kw in ("分析", "内容", "提取", "整理", "research")):
+                logger.info("Supervisor: clarify response → research_agent")
+                return {"route_decision": "research_agent"}
+            else:
+                logger.info("Supervisor: clarify response → general_agent")
+                return {"route_decision": "general_agent"}
+
+        # Stage 1: keyword fast-path (zero LLM cost)
+        last_user_text = last_user_text or ""  # already extracted above
 
         # Strip embedded file content before intent matching — file body pollutes
         # keyword signals (e.g. a resume with "research experience" triggers research_agent)

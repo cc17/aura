@@ -66,3 +66,201 @@
 {"event": "memory.extract_memories", "ts": 1778944821.792516, "elapsed_ms": 2353.0, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
 {"event": "profile.update", "ts": 1778944822.710717, "elapsed_ms": 912.8, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
 {"event": "suggestions.generate", "ts": 1778944826.5027132, "elapsed_ms": 3791.8, "conv_id": "e9b54c15c77b4c529e286a64f553988f"}
+{"event": "request_start", "ts": 1779200965.789661, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 4, "has_file": true, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779200965.99055, "elapsed_ms": 193.2, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 5}
+{"event": "intent_classify", "ts": 1779200966.014478, "path": "fast_path", "route": "research_agent", "confidence": 0.8, "query_preview": "[Attached file: 吴家峻-上海应用技术大学-软件工程.pdf]\n<file_content>\n吴家峻\n电话"}
+{"event": "kv_cache_miss", "ts": 1779200985.228672, "prefix": "reflection", "key": "llm:refl", "llm_ms": 1031.1}
+{"event": "reflection_done", "ts": 1779200985.2289002, "agent": "research_agent", "loop": 0, "score": 8, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779200994.926, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 29156.0, "response_tokens": 707, "response_chars": 1300}
+{"event": "memory.summarize", "ts": 1779200994.965667, "elapsed_ms": 16.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_facts", "ts": 1779201004.5339, "elapsed_ms": 9569.7, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779201013.2963321, "elapsed_ms": 8759.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779201014.050556, "elapsed_ms": 749.9, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779201017.509004, "elapsed_ms": 3458.5, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779202014.029452, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 4, "has_file": true, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779202014.08431, "elapsed_ms": 52.3, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 7}
+{"event": "intent_classify", "ts": 1779202014.088332, "path": "fast_path", "route": "research_agent", "confidence": 0.8, "query_preview": "[Attached file: 吴家峻-上海应用技术大学-软件工程.pdf]\n<file_content>\n吴家峻\n电话"}
+{"event": "kv_cache_miss", "ts": 1779202035.65395, "prefix": "reflection", "key": "llm:refl", "llm_ms": 1142.7}
+{"event": "reflection_done", "ts": 1779202035.6541, "agent": "research_agent", "loop": 0, "score": 8, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779202047.171564, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 33141.0, "response_tokens": 788, "response_chars": 1436}
+{"event": "memory.summarize", "ts": 1779202047.199834, "elapsed_ms": 7.7, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_facts", "ts": 1779202058.883899, "elapsed_ms": 11683.6, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779202064.535949, "elapsed_ms": 5643.0, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779202065.8704488, "elapsed_ms": 1325.5, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779202069.65132, "elapsed_ms": 3780.7, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779202340.2930949, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 3, "has_file": true, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779202340.394209, "elapsed_ms": 90.0, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 9}
+{"event": "intent_classify", "ts": 1779202340.40121, "path": "clarify", "route": "clarify", "query_preview": "帮看看"}
+{"event": "request_done", "ts": 1779202340.419701, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 126.1, "response_tokens": 17, "response_chars": 107}
+{"event": "memory.summarize", "ts": 1779202340.512419, "elapsed_ms": 27.2, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779202346.933569, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 1, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779202347.0153449, "elapsed_ms": 80.3, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 11}
+{"event": "intent_classify", "ts": 1779202347.020811, "path": "no_keyword_path", "route": "general_agent", "query_preview": "1"}
+{"event": "memory.extract_facts", "ts": 1779202351.360533, "elapsed_ms": 10847.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779202353.353934, "elapsed_ms": 1990.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779202354.24916, "elapsed_ms": 871.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779202357.630372, "elapsed_ms": 3380.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "reflection_done", "ts": 1779202358.2724428, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779202358.2747798, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 11340.8, "response_tokens": 402, "response_chars": 703}
+{"event": "memory.summarize", "ts": 1779202358.340432, "elapsed_ms": 25.9, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_facts", "ts": 1779202370.9032938, "elapsed_ms": 12562.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779202373.732204, "elapsed_ms": 2821.0, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779202374.552033, "elapsed_ms": 811.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779202378.187636, "elapsed_ms": 3635.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779202584.953346, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 4, "has_file": true, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779202585.041033, "elapsed_ms": 78.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 13}
+{"event": "intent_classify", "ts": 1779202585.0473979, "path": "clarify", "route": "clarify", "query_preview": "帮我看看"}
+{"event": "request_done", "ts": 1779202585.05141, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 97.9, "response_tokens": 17, "response_chars": 107}
+{"event": "memory.summarize", "ts": 1779202585.133763, "elapsed_ms": 40.7, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779202587.9102972, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 1, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779202587.9930549, "elapsed_ms": 81.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 15}
+{"event": "tool_call_start", "ts": 1779202596.689787, "tool": "resume_advisor", "agent": "career_agent", "input_preview": "{'resume_text': '吴家峻\\n电话：19907045788\\n邮箱：jg306033@qq.com\\n教育背景\\n2022.09 – 至今 上海应用技术大学 软件工程\\n▪ 核心课程： 离散数学、数据结构、计算机网络、操作系统"}
+{"event": "tool_call_end", "ts": 1779202596.728672, "tool": "resume_advisor", "agent": "career_agent", "elapsed_ms": 38.9, "result_len": 749}
+{"event": "memory.extract_facts", "ts": 1779202596.786426, "elapsed_ms": 11652.3, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779202597.908749, "elapsed_ms": 1108.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779202599.120165, "elapsed_ms": 1202.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779202601.9664278, "elapsed_ms": 2846.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "kv_cache_miss", "ts": 1779202605.7314649, "prefix": "reflection", "key": "llm:refl", "llm_ms": 1266.8}
+{"event": "reflection_done", "ts": 1779202605.731647, "agent": "career_agent", "loop": 0, "score": 9, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779202609.0981781, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 21187.3, "response_tokens": 195, "response_chars": 317}
+{"event": "memory.summarize", "ts": 1779202609.2024121, "elapsed_ms": 41.2, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_facts", "ts": 1779202619.3346298, "elapsed_ms": 10131.9, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779202623.818008, "elapsed_ms": 4474.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779202625.075039, "elapsed_ms": 1254.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779202628.554445, "elapsed_ms": 3479.2, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779202657.59044, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 10, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779202657.664683, "elapsed_ms": 73.0, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 17}
+{"event": "intent_classify", "ts": 1779202657.667736, "path": "no_keyword_path", "route": "general_agent", "query_preview": "大数据方向，最好上海"}
+{"event": "reflection_done", "ts": 1779202684.805239, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779202684.808697, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 27217.5, "response_tokens": 938, "response_chars": 1828}
+{"event": "memory.summarize", "ts": 1779202684.85328, "elapsed_ms": 14.6, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_facts", "ts": 1779202696.4603982, "elapsed_ms": 11606.6, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779202710.923017, "elapsed_ms": 14453.6, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779202718.122721, "elapsed_ms": 7190.9, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779202721.185289, "elapsed_ms": 3062.4, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779203250.838399, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 4, "has_file": true, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779203250.95421, "elapsed_ms": 104.7, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 19}
+{"event": "intent_classify", "ts": 1779203250.960938, "path": "clarify", "route": "clarify", "query_preview": "帮我看下"}
+{"event": "request_done", "ts": 1779203251.02469, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 185.8, "response_tokens": 17, "response_chars": 107}
+{"event": "memory.summarize", "ts": 1779203251.104828, "elapsed_ms": 18.3, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779203253.668267, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 1, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779203253.721869, "elapsed_ms": 52.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 21}
+{"event": "memory.extract_facts", "ts": 1779203263.122545, "elapsed_ms": 12017.3, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779203264.356524, "elapsed_ms": 1228.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779203265.2603352, "elapsed_ms": 892.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "tool_call_start", "ts": 1779203266.737458, "tool": "resume_advisor", "agent": "career_agent", "input_preview": "{'resume_text': '吴家峻\\n电话：19907045788\\n邮箱：jg306033@qq.com\\n教育背景\\n2022.09 – 至今 上海应用技术大学 软件工程\\n▪ 核心课程： 离散数学、数据结构、计算机网络、操作系统"}
+{"event": "tool_call_end", "ts": 1779203266.784344, "tool": "resume_advisor", "agent": "career_agent", "elapsed_ms": 46.9, "result_len": 890}
+{"event": "suggestions.generate", "ts": 1779203268.610141, "elapsed_ms": 3349.6, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "tool_call_start", "ts": 1779203276.1263628, "tool": "search_jobs", "agent": "career_agent", "input_preview": "{'query': '上海 大数据方向岗位', 'location': '上海'}"}
+{"event": "tool_call_end", "ts": 1779203276.1273658, "tool": "search_jobs", "agent": "career_agent", "elapsed_ms": 1.0, "result_len": 92}
+{"event": "kv_cache_miss", "ts": 1779203301.7134411, "prefix": "reflection", "key": "llm:refl", "llm_ms": 989.0}
+{"event": "reflection_done", "ts": 1779203301.713681, "agent": "career_agent", "loop": 0, "score": 8, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779203318.4866261, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 64816.9, "response_tokens": 1018, "response_chars": 1994}
+{"event": "memory.summarize", "ts": 1779203318.535895, "elapsed_ms": 11.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_facts", "ts": 1779203329.900052, "elapsed_ms": 11363.8, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779203342.95506, "elapsed_ms": 13045.9, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779203343.708313, "elapsed_ms": 751.0, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779203346.897652, "elapsed_ms": 3189.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779203494.572729, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "msg_len": 7, "has_file": true, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779203494.62174, "elapsed_ms": 47.9, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "history_msgs": 23}
+{"event": "intent_classify", "ts": 1779203494.6248882, "path": "fast_path", "route": "career_agent", "confidence": 0.7, "query_preview": "帮看看我的简历"}
+{"event": "tool_call_start", "ts": 1779203508.599651, "tool": "resume_advisor", "agent": "career_agent", "input_preview": "{'resume_text': '吴家峻\\n电话：19907045788\\n邮箱：jg306033@qq.com\\n教育背景\\n2022.09 – 至今 上海应用技术大学 软件工程\\n▪ 核心课程： 离散数学、数据结构、计算机网络、操作系统"}
+{"event": "tool_call_end", "ts": 1779203508.601631, "tool": "resume_advisor", "agent": "career_agent", "elapsed_ms": 2.0, "result_len": 890}
+{"event": "tool_call_start", "ts": 1779203519.128097, "tool": "search_jobs", "agent": "career_agent", "input_preview": "{'query': '上海 大数据方向岗位', 'location': '上海'}"}
+{"event": "tool_call_end", "ts": 1779203519.1290739, "tool": "search_jobs", "agent": "career_agent", "elapsed_ms": 1.0, "result_len": 92}
+{"event": "kv_cache_miss", "ts": 1779203544.6814039, "prefix": "reflection", "key": "llm:refl", "llm_ms": 877.2}
+{"event": "reflection_done", "ts": 1779203544.681643, "agent": "career_agent", "loop": 0, "score": 8, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779203561.7552, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018", "elapsed_ms": 67180.6, "response_tokens": 1028, "response_chars": 2010}
+{"event": "memory.summarize", "ts": 1779203561.789804, "elapsed_ms": 14.1, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_facts", "ts": 1779203572.48438, "elapsed_ms": 10694.2, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "memory.extract_memories", "ts": 1779203584.406702, "elapsed_ms": 11912.9, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "profile.update", "ts": 1779203591.053022, "elapsed_ms": 6638.6, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "suggestions.generate", "ts": 1779203595.8036082, "elapsed_ms": 4750.3, "conv_id": "acba85a8b19f4083b9d9cb3c7b116018"}
+{"event": "request_start", "ts": 1779204100.475204, "conv_id": "be18259895224c63bed60a683b7026ce", "msg_len": 8, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": true}
+{"event": "memory.build_context", "ts": 1779204100.59777, "elapsed_ms": 110.9, "conv_id": "be18259895224c63bed60a683b7026ce", "history_msgs": 3}
+{"event": "intent_classify", "ts": 1779204100.6081128, "path": "fast_path", "route": "research_agent", "confidence": 0.7, "query_preview": "帮我调研一个话题"}
+{"event": "kv_cache_miss", "ts": 1779204103.617433, "prefix": "reflection", "key": "llm:refl", "llm_ms": 918.2}
+{"event": "reflection_done", "ts": 1779204103.617669, "agent": "research_agent", "loop": 0, "score": 8, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779204104.0416682, "conv_id": "be18259895224c63bed60a683b7026ce", "elapsed_ms": 3565.9, "response_tokens": 31, "response_chars": 49}
+{"event": "memory.summarize", "ts": 1779204104.0899599, "elapsed_ms": 14.3, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "request_start", "ts": 1779204112.948093, "conv_id": "be18259895224c63bed60a683b7026ce", "msg_len": 10, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779204113.01549, "elapsed_ms": 66.3, "conv_id": "be18259895224c63bed60a683b7026ce", "history_msgs": 5}
+{"event": "intent_classify", "ts": 1779204113.018694, "path": "no_keyword_path", "route": "general_agent", "query_preview": "如何github涨粉"}
+{"event": "memory.extract_facts", "ts": 1779204115.566159, "elapsed_ms": 11475.8, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "memory.extract_memories", "ts": 1779204116.95169, "elapsed_ms": 1382.0, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "profile.update", "ts": 1779204118.6513898, "elapsed_ms": 1690.8, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "reflection_done", "ts": 1779204119.3264792, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779204119.3474078, "conv_id": "be18259895224c63bed60a683b7026ce", "elapsed_ms": 6398.9, "response_tokens": 181, "response_chars": 327}
+{"event": "memory.summarize", "ts": 1779204119.392904, "elapsed_ms": 11.7, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "suggestions.generate", "ts": 1779204122.363976, "elapsed_ms": 3712.3, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "memory.extract_facts", "ts": 1779204129.881552, "elapsed_ms": 10488.3, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "memory.extract_memories", "ts": 1779204132.90989, "elapsed_ms": 3018.8, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "profile.update", "ts": 1779204139.241517, "elapsed_ms": 6323.9, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "suggestions.generate", "ts": 1779204142.866839, "elapsed_ms": 3625.1, "conv_id": "be18259895224c63bed60a683b7026ce"}
+{"event": "request_start", "ts": 1779204667.961803, "conv_id": "7d662f5a34784d1f8390fca6efc67a1b", "msg_len": 8, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": true}
+{"event": "memory.build_context", "ts": 1779204668.065263, "elapsed_ms": 93.2, "conv_id": "7d662f5a34784d1f8390fca6efc67a1b", "history_msgs": 3}
+{"event": "intent_classify", "ts": 1779204668.071487, "path": "fast_path", "route": "research_agent", "confidence": 0.7, "query_preview": "帮我调研一个话题"}
+{"event": "request_cancel", "ts": 1779204671.889913, "conv_id": "7d662f5a34784d1f8390fca6efc67a1b", "elapsed_ms": 3928.0}
+{"event": "request_start", "ts": 1779204681.1293418, "conv_id": "8cf73a856e2643fb8a114ce681c9d857", "msg_len": 8, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": true}
+{"event": "skill_match", "ts": 1779204681.1300359, "skill_key": "presentation_outliner", "query_preview": "帮我做一个PPT"}
+{"event": "request_start", "ts": 1779204884.5717702, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "msg_len": 21, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": true}
+{"event": "memory.build_context", "ts": 1779204884.666521, "elapsed_ms": 94.0, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "history_msgs": 3}
+{"event": "intent_classify", "ts": 1779204884.670979, "path": "fast_path", "route": "career_agent", "confidence": 0.8, "query_preview": "帮我看看求职方向，我想了解一下适合我的岗位"}
+{"event": "tool_call_start", "ts": 1779204886.2118971, "tool": "search_jobs", "agent": "career_agent", "input_preview": "{'query': '大数据方向岗位', 'location': '上海'}"}
+{"event": "tool_call_end", "ts": 1779204886.233671, "tool": "search_jobs", "agent": "career_agent", "elapsed_ms": 21.8, "result_len": 92}
+{"event": "tool_call_start", "ts": 1779204889.979539, "tool": "web_search", "agent": "career_agent", "input_preview": "{'query': '大数据方向市场现状，包括薪资区间、主要公司、核心要求', 'num_results': 3, 'language': 'zh-cn'}"}
+{"event": "tool_call_end", "ts": 1779204889.9949608, "tool": "web_search", "agent": "career_agent", "elapsed_ms": 15.4, "result_len": 82}
+{"event": "kv_cache_miss", "ts": 1779204895.948535, "prefix": "reflection", "key": "llm:refl", "llm_ms": 1556.6}
+{"event": "reflection_done", "ts": 1779204895.948726, "agent": "career_agent", "loop": 0, "score": 3, "approved": false, "critique": "用户询问适合自己的岗位，回复未结合用户情况，仅泛谈大数据方向，未完整回答问题。"}
+{"event": "tool_call_start", "ts": 1779204897.4777238, "tool": "search_jobs", "agent": "career_agent", "input_preview": "{'query': '大数据 上海', 'location': '上海'}"}
+{"event": "tool_call_end", "ts": 1779204897.487911, "tool": "search_jobs", "agent": "career_agent", "elapsed_ms": 10.2, "result_len": 92}
+{"event": "kv_cache_miss", "ts": 1779204903.463298, "prefix": "reflection", "key": "llm:refl", "llm_ms": 1414.2}
+{"event": "reflection_done", "ts": 1779204903.463532, "agent": "career_agent", "loop": 1, "score": 8, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779204905.7848818, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "elapsed_ms": 21212.7, "response_tokens": 160, "response_chars": 290}
+{"event": "memory.summarize", "ts": 1779204905.821671, "elapsed_ms": 12.7, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_facts", "ts": 1779204917.198756, "elapsed_ms": 11376.6, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_memories", "ts": 1779204921.548864, "elapsed_ms": 4341.4, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "request_start", "ts": 1779204924.3675818, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "msg_len": 7, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779204924.434656, "elapsed_ms": 66.4, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "history_msgs": 5}
+{"event": "intent_classify", "ts": 1779204924.454068, "path": "no_keyword_path", "route": "general_agent", "query_preview": "上海工作好找吗"}
+{"event": "profile.update", "ts": 1779204927.603204, "elapsed_ms": 6044.1, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "reflection_done", "ts": 1779204930.6599941, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779204930.66277, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "elapsed_ms": 6295.0, "response_tokens": 181, "response_chars": 312}
+{"event": "memory.summarize", "ts": 1779204930.725127, "elapsed_ms": 23.8, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "suggestions.generate", "ts": 1779204931.7327092, "elapsed_ms": 4129.3, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "request_start", "ts": 1779204934.77021, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "msg_len": 6, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "skill_match", "ts": 1779204934.770901, "skill_key": "salary_negotiation", "query_preview": "薪资多少钱啊"}
+{"event": "memory.extract_facts", "ts": 1779204942.0731578, "elapsed_ms": 11347.6, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_memories", "ts": 1779204944.694124, "elapsed_ms": 2616.2, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "profile.update", "ts": 1779204952.525154, "elapsed_ms": 7823.6, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "suggestions.generate", "ts": 1779204955.958196, "elapsed_ms": 3432.9, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "request_start", "ts": 1779204977.51895, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "msg_len": 5, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779204977.556897, "elapsed_ms": 37.2, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "history_msgs": 8}
+{"event": "intent_classify", "ts": 1779204977.560831, "path": "no_keyword_path", "route": "general_agent", "query_preview": "咋不回复了"}
+{"event": "reflection_done", "ts": 1779204981.9156501, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779204981.9207711, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "elapsed_ms": 4401.6, "response_tokens": 132, "response_chars": 208}
+{"event": "memory.summarize", "ts": 1779204981.959241, "elapsed_ms": 15.5, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "request_start", "ts": 1779204988.742321, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "msg_len": 7, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779204988.794411, "elapsed_ms": 50.8, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "history_msgs": 10}
+{"event": "intent_classify", "ts": 1779204988.797458, "path": "no_keyword_path", "route": "general_agent", "query_preview": "刚才好像卡了下"}
+{"event": "memory.extract_facts", "ts": 1779204991.460174, "elapsed_ms": 9499.1, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "reflection_done", "ts": 1779204991.833056, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779204991.835683, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "elapsed_ms": 3093.1, "response_tokens": 63, "response_chars": 106}
+{"event": "memory.summarize", "ts": 1779204991.905252, "elapsed_ms": 34.4, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_memories", "ts": 1779204992.328823, "elapsed_ms": 861.0, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "profile.update", "ts": 1779204993.108048, "elapsed_ms": 777.7, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "suggestions.generate", "ts": 1779204996.212032, "elapsed_ms": 3103.4, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_facts", "ts": 1779205003.308886, "elapsed_ms": 11403.3, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_memories", "ts": 1779205004.5321338, "elapsed_ms": 1215.7, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "profile.update", "ts": 1779205005.413107, "elapsed_ms": 872.7, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "request_start", "ts": 1779205008.407268, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "msg_len": 12, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779205008.4535522, "elapsed_ms": 45.5, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "history_msgs": 12}
+{"event": "intent_classify", "ts": 1779205008.45809, "path": "no_keyword_path", "route": "general_agent", "query_preview": "嗯 今天好像对话次数到了"}
+{"event": "suggestions.generate", "ts": 1779205009.630817, "elapsed_ms": 4217.5, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "reflection_done", "ts": 1779205011.415738, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779205011.426846, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "elapsed_ms": 3019.4, "response_tokens": 61, "response_chars": 96}
+{"event": "memory.summarize", "ts": 1779205011.4808068, "elapsed_ms": 23.6, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_facts", "ts": 1779205023.015624, "elapsed_ms": 11534.5, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_memories", "ts": 1779205025.479365, "elapsed_ms": 2455.8, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "profile.update", "ts": 1779205026.612919, "elapsed_ms": 1126.2, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "suggestions.generate", "ts": 1779205031.0942569, "elapsed_ms": 4481.2, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}

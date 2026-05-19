@@ -195,16 +195,8 @@ class AgentCore:
                         result_len=len(str(output)),
                         **({"error": str(error)[:120]} if error else {}),
                     )
-                    _iter_buffer.append(
-                        StreamEvent(
-                            event=StreamEventType.TOOL_RESULT,
-                            data={
-                                "tool_call_id": run_id,
-                                "name": name,
-                                "result": str(output),
-                            },
-                        )
-                    )
+                    # Tool results are internal agent context — not surfaced to users.
+                    # The agent's final response already incorporates results in human language.
 
                 # ── reflection gate ───────────────────────────────────────
                 # LangGraph fires on_chain_end for both the node itself and any
