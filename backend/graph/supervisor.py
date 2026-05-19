@@ -39,6 +39,7 @@ from backend.config import settings
 from backend.observability import trace
 from backend.graph.agents.gaokao import create_gaokao_agent
 from backend.graph.agents.general import create_general_agent
+from backend.graph.agents.job_search import create_job_search_agent
 from backend.graph.agents.ppt import create_ppt_agent
 from backend.graph.agents.research import create_research_agent
 from backend.graph.agents.resume import create_resume_agent
@@ -61,6 +62,9 @@ SUPERVISOR_PROMPT = (
     "- research_agent : Research — gather information, news, market analysis, reports.\n"
     "- gaokao_agent   : Chinese college entrance exam (高考) — scores, majors, universities.\n"
     "  Keywords: 高考、志愿填报、录取分数线、报考、选专业、就业前景。\n"
+    "- job_search_agent: Job hunting — searching open positions, JD analysis, career positioning, "
+    "which companies are hiring, market intelligence for job seekers.\n"
+    "  Keywords: 找工作、求职、招聘、岗位、跳槽、转行、职业规划、JD分析、哪些公司在招\n"
     "- general_agent  : Everything else — chat, coding, Q&A, math, writing, etc.\n\n"
     "Reply with ONLY the agent name. No other text."
 )
@@ -87,7 +91,7 @@ REFLECTION_PROMPT = (
 _compiled_graph = None
 
 WORKER_AGENTS = frozenset(
-    ("general_agent", "resume_agent", "gaokao_agent", "ppt_agent", "research_agent")
+    ("general_agent", "resume_agent", "gaokao_agent", "ppt_agent", "research_agent", "job_search_agent")
 )
 
 
@@ -117,6 +121,7 @@ def _build_graph(model: str | None = None):
     gaokao_node = create_gaokao_agent(model=settings.default_model)
     ppt_node = create_ppt_agent(model=settings.default_model)
     research_node = create_research_agent(model=settings.default_model)
+    job_search_node = create_job_search_agent(model=settings.default_model)
 
     # ── Supervisor node ───────────────────────────────────────────────────────
     async def supervisor_node(state: AuraState) -> dict[str, Any]:
@@ -266,6 +271,7 @@ def _build_graph(model: str | None = None):
     graph.add_node("gaokao_agent", gaokao_node)
     graph.add_node("ppt_agent", ppt_node)
     graph.add_node("research_agent", research_node)
+    graph.add_node("job_search_agent", job_search_node)
     graph.add_node("reflection", reflection_node)
 
     graph.set_entry_point("supervisor")
@@ -274,11 +280,12 @@ def _build_graph(model: str | None = None):
         "supervisor",
         route_after_supervisor,
         {
-            "general_agent":  "general_agent",
-            "resume_agent":   "resume_agent",
-            "gaokao_agent":   "gaokao_agent",
-            "ppt_agent":      "ppt_agent",
-            "research_agent": "research_agent",
+            "general_agent":    "general_agent",
+            "resume_agent":     "resume_agent",
+            "gaokao_agent":     "gaokao_agent",
+            "ppt_agent":        "ppt_agent",
+            "research_agent":   "research_agent",
+            "job_search_agent": "job_search_agent",
         },
     )
 
@@ -290,12 +297,13 @@ def _build_graph(model: str | None = None):
         "reflection",
         route_after_reflection,
         {
-            "general_agent":  "general_agent",
-            "resume_agent":   "resume_agent",
-            "gaokao_agent":   "gaokao_agent",
-            "ppt_agent":      "ppt_agent",
-            "research_agent": "research_agent",
-            END:              END,
+            "general_agent":    "general_agent",
+            "resume_agent":     "resume_agent",
+            "gaokao_agent":     "gaokao_agent",
+            "ppt_agent":        "ppt_agent",
+            "research_agent":   "research_agent",
+            "job_search_agent": "job_search_agent",
+            END:                END,
         },
     )
 

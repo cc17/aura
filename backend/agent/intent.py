@@ -45,11 +45,19 @@ _GAOKAO_KW = re.compile(
     re.IGNORECASE,
 )
 
+_JOB_SEARCH_KW = re.compile(
+    r"找工作|求职|招聘|在招|岗位|跳槽|转行|换工作|投递|offer|"
+    r"职业规划|找份工作|找到工作|找个工作|工作机会|job\s*search|hiring|"
+    r"哪些公司|什么公司|什么岗位|有没有岗|应聘|面试机会|jd分析|看看岗位",
+    re.IGNORECASE,
+)
+
 _INTENT_PATTERNS: list[tuple[str, re.Pattern]] = [
     ("resume", _RESUME_KW),
     ("ppt", _PPT_KW),
     ("research", _RESEARCH_KW),
     ("gaokao", _GAOKAO_KW),
+    ("job_search", _JOB_SEARCH_KW),
 ]
 
 
@@ -100,4 +108,6 @@ def map_llm_decision(decision: str) -> str:
         return "research"
     if any(kw in d for kw in ("gaokao", "高考", "志愿", "录取", "报考")):
         return "gaokao"
+    if any(kw in d for kw in ("job_search", "job", "找工作", "求职", "招聘", "跳槽")):
+        return "job_search"
     return "general"
