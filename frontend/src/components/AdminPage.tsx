@@ -19,7 +19,7 @@ interface DashboardData {
     total: number;
     agents: number;
     top10_30d: Array<{ skill_key: string; name: string; clicked: number; completed: number; abandoned: number }>;
-  top_agents_30d: Array<{ agent_key: string; clicked: number }>;
+  top_agents_30d: Array<{ agent_key: string; clicked: number; used: number }>;
     funnel_30d: Record<string, number>;
     exec_success_rate_pct: number | null;
   };
@@ -226,7 +226,8 @@ export function AdminPage() {
                   <thead>
                     <tr>
                       <th>Agent</th>
-                      <th>点击</th>
+                      <th>首页点击</th>
+                      <th>实际调用</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -234,6 +235,7 @@ export function AdminPage() {
                       <tr key={row.agent_key}>
                         <td>{row.agent_key}</td>
                         <td>{row.clicked}</td>
+                        <td>{row.used}</td>
                       </tr>
                     ))}
                   </tbody>

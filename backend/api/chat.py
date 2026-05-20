@@ -113,6 +113,7 @@ async def chat(
         stream_completed = False
         token_count = 0
         assistant_message_id = str(__import__("uuid").uuid4().hex)
+        used_agents: set[str] = set()
 
         async with session_factory() as ctx_session:
             ctx_repo = SQLAlchemyConversationRepo(ctx_session)
@@ -130,6 +131,10 @@ async def chat(
                     token_count += len(chunk.split())
                 if event.event == StreamEventType.DONE:
                     stream_completed = True
+                if event.event == StreamEventType.AGENT_START:
+                    agent_name = event.data.get("agent", "")
+                    if agent_name and agent_name not in ("clarify", "general_agent"):
+                        used_agents.add(agent_name)
 
                 yield {"event": event.event.value, "data": json.dumps(event.data)}
 
@@ -187,6 +192,19 @@ async def chat(
                             session=mem_session,
                         )
                     await mem_session.commit()
+
+                # Record agent usage signals
+                if used_agents:
+                    from backend.memory.models import SkillSignalModel
+                    async with session_factory() as sig_session:
+                        for agent_key in used_agents:
+                            sig_session.add(SkillSignalModel(
+                                user_id=user_id,
+                                skill_id=None,
+                                agent_key=agent_key,
+                                signal_type="used",
+                            ))
+                        await sig_session.commit()
 
                 # Phase 5: update profile and generate suggestions
                 async with session_factory() as p5_session:

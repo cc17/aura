@@ -151,6 +151,9 @@ async def dashboard(session: AsyncSession = Depends(_get_session)):
             func.sum(
                 case((SkillSignalModel.signal_type == "clicked", 1), else_=0)
             ).label("clicked"),
+            func.sum(
+                case((SkillSignalModel.signal_type == "used", 1), else_=0)
+            ).label("used"),
         )
         .where(
             SkillSignalModel.created_at >= thirty_days_ago,
@@ -161,7 +164,11 @@ async def dashboard(session: AsyncSession = Depends(_get_session)):
         .limit(10)
     )
     top_agents = [
-        {"agent_key": r.agent_key, "clicked": int(r.clicked or 0)}
+        {
+            "agent_key": r.agent_key,
+            "clicked": int(r.clicked or 0),
+            "used": int(r.used or 0),
+        }
         for r in top_agents_rows
     ]
 
