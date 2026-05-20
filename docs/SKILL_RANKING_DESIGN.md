@@ -10,6 +10,149 @@
 
 ---
 
+## 当前实现状态（2026-05-20，Phase 11）
+
+> 本节记录截至今日的架构决策与落地情况，供对照演进路径使用。下方正文保持原样不变。
+
+---
+
+### 两套推荐系统的业务定义
+
+本文原始设计只描述了一套召回系统。实际产品中，Skill/Agent 推荐有**两个完全独立的触发场景**，流水线设计有本质差异：
+
+#### 系统 1：首页空态推荐（Home Screen Recommendation）
+
+**触发时机**：用户新建会话，输入框为空时展示的卡片区
+
+**业务目标**：在用户没有明确意图时，主动发现用户可能需要的 Skill，降低"不知道能干嘛"的流失
+
+**核心特点**：
+- 没有实时意图信号，完全依赖 profile + 历史行为
+- 需要填满 6 个卡片槽位（必须有结果）
+- 同时推荐 Skill 卡片 + Agent 卡片（career/gaokao/ppt/research）
+- 用户点击成本低（就是卡片，不打断对话）
+
+**已实现流水线**：
+```
+Context（profile: industry / role / pain_points）
+  → Recall        skill_role_mapping + is_universal，排除已 pin
+  → Coarse Rank   每 layer 最多 2 个，强制多样性
+  → Fine Rank     profile_match×0.4 + CTR×0.25 + affinity×0.25 + recency×0.1
+  → Re-rank       pinned 强插 + cool_down_until 过滤
+```
+
+**核心文件**：`backend/services/skill_recommender.py` / `backend/api/recommendations.py`
+
+---
+
+#### 系统 2：对话内意图触发（In-Conversation Intent Trigger）
+
+**触发时机**：用户在对话中发送消息，系统识别出意图后主动弹出 Skill 建议
+
+**业务目标**：在用户意图最明确的时刻精准推荐，CTR 远高于系统 1
+
+**核心特点**：
+- 有最强信号：用户刚发的这句话（实时意图）
+- 通常只取 top-1（弹出一个 Skill 面板，不能一次弹多个）
+- 推错了比不推更差——**必须有置信度门槛**，低于阈值宁可不弹
+- 不需要多样性控制，不需要考虑 pin
+
+**当前实现**（粗糙版，待升级）：
+```python
+# backend/services/skill_registry.py
+def find_by_keywords(text: str) -> dict | None:
+    # 纯关键词字符串匹配，命中第一个就返回
+```
+
+**问题**：关键词匹配漏召回率高（用户换个说法就触发不了）
+
+**目标流水线**（Phase 12，待实现）：
+```
+用户消息
+  → 硬规则快路径    关键词完全匹配 → 直接返回，跳过后续（高置信度保留）
+  → Embedding 召回  消息文本 vs skill 描述，余弦相似度 top-N
+  → Coarse Rank     profile 匹配粗过滤，剩 m 个
+  → Fine Rank       见下方打分公式
+  → 置信度门槛      score < 0.65 → 不触发，继续正常对话
+  → 输出 top-1
+```
+
+---
+
+### 两系统精排维度对比（重要）
+
+| 打分维度 | 系统 1 权重 | 系统 2 权重 | 说明 |
+|---------|:----------:|:----------:|------|
+| **语义相似度**（消息 embedding vs skill） | ❌ 无此信号 | **0.40** | 系统 2 最核心信号，系统 1 没有 |
+| **profile 匹配**（pain_points/role/industry） | 0.40 | 0.20 | 两系统都用；pain_points 权重最高（×3） |
+| **质量信号 quality** | ⚠️ 未拆出 | **0.25** | 见下方 quality 公式 |
+| **个人 affinity** | 0.25 | 0.15 | `user_skill_affinity.affinity_score` |
+| **全局 CTR** | 0.25（含 affinity 内） | ⚠️ 权重降低 | 系统 2 更看重质量而非点击 |
+| **recency**（最近 7 天用过） | 0.10 | 可选 | |
+| **置信度门槛** | ❌ 不需要（必须填满） | **必须有** | 低于阈值不触发，宁缺毋滥 |
+
+**系统 2 精排公式**（Phase 12 目标）：
+```
+score = semantic_sim  × 0.40
+      + profile_match × 0.20
+      + quality       × 0.25   ← 文档 §4 多目标融合的核心
+      + affinity      × 0.15
+
+quality = pComplete × 0.5 + pAdopt × 0.4 - pAbandon × 0.3
+# pComplete = completed / started
+# pAdopt    = (output_copied + output_liked + shared) / completed
+# pAbandon  = abandoned / started
+```
+
+**为什么系统 2 的 quality 权重比系统 1 更高**：
+系统 1 推错了用户直接忽略，成本低。系统 2 是在用户说话时主动打断，推错了直接破坏对话体验。
+completion rate 和 adoption rate（复制/点赞/分享）是"这个 Skill 真的有用"最干净的信号。
+
+---
+
+### pain_points 在精排中的位置（系统 1 已实现）
+
+pain_points 是 profile 匹配分的最重要组成，权重高于 role 和 industry：
+
+```python
+# skill_recommender.py: _profile_score_norm()
+raw = sum(W_PAIN for kw in pain_points if kw.lower() in skill_text)  # W_PAIN=3
+if role and role.lower() in text:     raw += W_ROLE      # 2
+if industry and industry.lower() in text: raw += W_INDUSTRY  # 1
+# 归一化到 0-1，进入 Fine Rank 的 0.40 权重
+```
+
+系统 2 复用同一函数，但权重降为 0.20（让位给语义相似度）。
+
+---
+
+### 现阶段所处演进位置
+
+对应本文"阶段 2（100-1000 用户）"入口：
+- 系统 1：规则召回 + 个人化打分均已上线，离线聚合任务待实现
+- 系统 2：仍在"阶段 1"（关键词规则），Phase 12 升级到 embedding 召回 + 完整精排
+
+| 本文设计 | 实际实现 | 备注 |
+|---------|---------|------|
+| § 2.5 affinity 公式 | 简化版：DB 触发器粗略写入 | 时间衰减 Phase 11D 补 |
+| § 3 阶段 1 规则召回 | ✅ 系统 1 已实现 | |
+| § 3 阶段 2 个人化排序 | ✅ 系统 1 部分实现 | 离线聚合待 Phase 11B |
+| § 3 阶段 3 实时意图召回 | ⏳ 系统 2 Phase 12 | embedding 召回 |
+| § 4 多目标融合 quality | ⏳ 系统 2 Phase 12 | pComplete/pAdopt/pAbandon |
+| § 6.1 数据层 | ✅ 已有 | |
+| § 6.2 离线聚合任务 | ⏳ Phase 11B | |
+| § 6.3 推荐接口 | ✅ `GET /api/recommendations` | |
+| § 6.3 信号接口 | ✅ `POST /api/recommendations/events` | |
+
+### 下一步
+
+- **Phase 11B**：cron 任务聚合 `skill_metrics_daily`，拆出 pComplete / pAdopt / pAbandon
+- **Phase 11C**：`recommendation_cool_down_until` 自动设置
+- **Phase 11D**：对话结束后用信号权重更新 `affinity_score`（§ 2.5 完整公式）
+- **Phase 12**：系统 2 升级——embedding 召回 + 完整精排公式 + 置信度门槛
+
+---
+
 ## 0. 阅读说明
 
 这份文档不是"完美方案",而是**演进路径**:
@@ -402,15 +545,17 @@ def find_similar_role_skills(industry, role):
 
 **不要一开始就做全套**。第一版只做这些:
 
-### 6.1 数据层(已完成)
-- ✅ `skill_signals` 表
-- ✅ `user_skill_affinity` 表
+### 6.1 数据层（已完成）
+- ✅ `skill_signals` 表（含 ORM：`SkillSignalModel`）
+- ✅ `user_skill_affinity` 表（含 ORM：`UserSkillAffinityModel`）
 - ✅ `skill_metrics_daily` 表
 - ✅ 触发器自动从 `skill_executions` 写 signals
 
-### 6.2 离线任务(每天跑一次,cron)
+### 6.2 离线任务（每天跑一次，cron）
 
-**Task 1:计算 user_skill_affinity**
+- ⏳ **Phase 11B 待实现**
+
+**Task 1：计算 user_skill_affinity**（当前由触发器粗略更新，缺时间衰减）
 ```python
 # 每天凌晨 3 点跑
 def update_affinity_scores():
@@ -420,7 +565,7 @@ def update_affinity_scores():
             upsert_affinity(user.id, skill.id, score)
 ```
 
-**Task 2:聚合 skill_metrics_daily**
+**Task 2：聚合 skill_metrics_daily**（当前 Fine Rank 实时查 skill_signals，量大时改为查此表）
 ```python
 def aggregate_daily_metrics():
     # 从 skill_signals 聚合到 skill_metrics_daily
@@ -428,26 +573,23 @@ def aggregate_daily_metrics():
     pass
 ```
 
-### 6.3 在线接口
+### 6.3 在线接口（已完成，Phase 11）
 
-**Endpoint 1**:`GET /api/skills/recommend?count=8`
-返回用户首页推荐的 Skill 列表(走阶段 2 排序逻辑)。
+**Endpoint 1**：`GET /api/recommendations`（原设计为 `/api/skills/recommend?count=8`）
+返回 `{pinned, agents, skills}`，走完整 5 阶段流水线。
 
-**Endpoint 2**:`POST /api/skills/signal`
-前端在每个交互事件后调用,记录 signal。
+**Endpoint 2**：`POST /api/recommendations/events`（原设计为 `/api/skills/signal`）
+前端批量上报 impression / click 等事件，写入 `skill_signals`。
 
-```javascript
-// 前端示例
-function onSkillCardImpressioned(skillId) {
-    fetch('/api/skills/signal', {
-        method: 'POST',
-        body: JSON.stringify({
-            skill_id: skillId,
-            signal_type: 'impressioned',
-            context: { page: 'home', position: 3 }
-        })
-    });
-}
+```typescript
+// 前端实际调用（EmptyStateCards.tsx）
+postSkillEvents([{
+  item_type: "skill",
+  item_key: "weekly_report",
+  signal_type: "impressioned",
+  context: { position: 0, bucket: "recommended" },
+  session_id: sessionId,
+}]);
 ```
 
 ### 6.4 监控大盘(必备)

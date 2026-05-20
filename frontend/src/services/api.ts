@@ -156,6 +156,47 @@ export interface MySkill extends SkillDef {
   use_count: number;
 }
 
+// ---------------------------------------------------------------------------
+// Recommendations (home screen pipeline)
+// ---------------------------------------------------------------------------
+
+export interface AgentCard {
+  key: string;
+  icon: string;
+  label: string;
+  tagline: string;
+  sampleMessage: string;
+}
+
+export interface RecommendationResponse {
+  pinned: MySkill[];
+  agents: AgentCard[];
+  skills: SkillDef[];
+}
+
+export async function fetchRecommendations(): Promise<RecommendationResponse> {
+  const res = await apiFetch("/recommendations");
+  if (!res.ok) return { pinned: [], agents: [], skills: [] };
+  return res.json();
+}
+
+export interface SkillEvent {
+  item_type: "skill" | "agent";
+  item_key: string;
+  signal_type: string;
+  context?: Record<string, unknown>;
+  session_id?: string;
+}
+
+export async function postSkillEvents(events: SkillEvent[]): Promise<void> {
+  if (!events.length) return;
+  await apiFetch("/recommendations/events", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ events }),
+  }).catch(() => {});
+}
+
 export async function fetchSkills(): Promise<SkillDef[]> {
   const res = await apiFetch("/skills");
   if (!res.ok) return [];

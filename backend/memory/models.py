@@ -13,6 +13,7 @@ from sqlalchemy import (
     ForeignKey,
     Index,
     Integer,
+    Numeric,
     SmallInteger,
     String,
     Text,
@@ -329,3 +330,51 @@ class SkillExecutionModel(Base):
 
     user: Mapped[UserModel] = relationship(back_populates="skill_executions")
     skill: Mapped[IndustrySkillModel] = relationship(back_populates="executions")
+
+
+# ---------------------------------------------------------------------------
+# Recommendation pipeline: behavior signals + per-user affinity
+# ---------------------------------------------------------------------------
+
+
+class SkillSignalModel(Base):
+    """Raw behavior events: impression, click, execution outcomes, etc."""
+
+    __tablename__ = "skill_signals"
+    __table_args__ = (
+        Index("idx_skill_signals_user_time", "user_id", "created_at"),
+        Index("idx_skill_signals_skill_type", "skill_id", "signal_type", "created_at"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    skill_id: Mapped[int] = mapped_column(Integer, ForeignKey("industry_skills.id"), nullable=False)
+    signal_type: Mapped[str] = mapped_column(String(30), nullable=False)
+    context: Mapped[dict | None] = mapped_column(JSONB, nullable=True, default=dict)
+    session_id: Mapped[str | None] = mapped_column(String(100), nullable=True)
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+
+
+class UserSkillAffinityModel(Base):
+    """Per-user skill affinity scores, updated by the trigger on skill_executions."""
+
+    __tablename__ = "user_skill_affinity"
+    __table_args__ = (
+        UniqueConstraint("user_id", "skill_id", name="uq_user_skill_affinity"),
+        Index("idx_user_skill_affinity_user_score", "user_id", "affinity_score"),
+    )
+
+    id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
+    user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
+    skill_id: Mapped[int] = mapped_column(Integer, ForeignKey("industry_skills.id"), nullable=False)
+    affinity_score: Mapped[float] = mapped_column(Numeric(6, 4), nullable=False, default=0.5)
+    total_uses: Mapped[int] = mapped_column(Integer, default=0)
+    last_used_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    last_recommended_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    recommendation_cool_down_until: Mapped[datetime | None] = mapped_column(
+        DateTime(timezone=True), nullable=True
+    )
+    created_at: Mapped[datetime] = mapped_column(DateTime(timezone=True), default=_utcnow)
+    updated_at: Mapped[datetime] = mapped_column(
+        DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
+    )

@@ -88,9 +88,15 @@ async def chat(
     async def event_stream():
         yield {"event": "conversation_id", "data": json.dumps({"conversation_id": conv_id})}
 
-        # Skill intent detection — check before running LangGraph
-        from backend.services.skill_registry import find_by_keywords
-        matched_skill = find_by_keywords(message)
+        # Skill intent detection — embedding recall + fine rank (System 2 pipeline)
+        from backend.services.skill_intent_matcher import match_intent
+        async with session_factory() as intent_session:
+            matched_skill = await match_intent(
+                message=message,
+                user_id=user_id,
+                profile=current_user.profile or {},
+                session=intent_session,
+            )
         if matched_skill:
             trace("skill_match", skill_key=matched_skill["skill_key"], query_preview=message[:60])
             yield {

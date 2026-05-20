@@ -49,6 +49,11 @@ async def startup():
         await load_skills(session)
     logger.info("Skills loaded from DB")
 
+    import asyncio
+    from backend.services.skill_intent_matcher import build_skill_embeddings
+    asyncio.create_task(build_skill_embeddings())
+    logger.info("Skill embedding build started (background)")
+
 
 @app.on_event("shutdown")
 async def shutdown():

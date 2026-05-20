@@ -1,88 +1,97 @@
-import { useEffect, useState } from "react";
-import { fetchMySkills, fetchSkills, fetchProfile } from "../services/api";
-import type { MySkill, SkillDef } from "../services/api";
-import { getRelevantAgents } from "../config/agents";
-import type { AgentEntry } from "../config/agents";
+import { useEffect, useRef, useState } from "react";
+import { fetchRecommendations, postSkillEvents } from "../services/api";
+import type { AgentCard, MySkill, RecommendationResponse, SkillDef } from "../services/api";
 
 interface Props {
   onSelectSkill: (skillKey: string) => void;
   onSendMessage: (text: string) => void;
 }
 
-const MAX_TOTAL = 6;
-
 export function EmptyStateCards({ onSelectSkill, onSendMessage }: Props) {
-  const [pinned, setPinned] = useState<MySkill[]>([]);
-  const [recommended, setRecommended] = useState<SkillDef[]>([]);
-  const [agents, setAgents] = useState<AgentEntry[]>([]);
+  const [recs, setRecs] = useState<RecommendationResponse>({ pinned: [], agents: [], skills: [] });
+  const sessionId = useRef(crypto.randomUUID());
+  const impressionFired = useRef(false);
 
   useEffect(() => {
-    fetchMySkills()
-      .then((skills) => setPinned(skills.filter((s) => s.is_pinned)))
-      .catch(() => {});
-
-    fetchSkills().then(setRecommended).catch(() => {});
-
-    fetchProfile()
-      .then((d) => {
-        const profile = d.profile || {};
-
-        const extractStr = (field: unknown): string | undefined => {
-          if (typeof field === "string") return field || undefined;
-          if (typeof field === "object" && field !== null && "value" in field)
-            return (field as { value?: string }).value || undefined;
-          return undefined;
-        };
-
-        const industry = extractStr(profile["industry"]);
-
-        const painRaw = profile["pain_points"];
-        const painPoints: string[] = Array.isArray(painRaw)
-          ? painRaw
-          : typeof painRaw === "string" && painRaw
-          ? painRaw.split(/[、,，\s]+/).filter(Boolean)
-          : extractStr(painRaw)
-          ? (extractStr(painRaw) as string).split(/[、,，\s]+/).filter(Boolean)
-          : [];
-
-        setAgents(getRelevantAgents(industry, painPoints));
-      })
-      .catch(() => setAgents(getRelevantAgents()));
+    fetchRecommendations().then(setRecs).catch(() => {});
   }, []);
 
-  // Build display list: pinned → agents → recommended, capped at MAX_TOTAL
-  const pinnedKeys = new Set(pinned.map((s) => s.skill_key));
-  const dedupedRecommended = recommended.filter((s) => !pinnedKeys.has(s.skill_key));
+  // Fire one batch of impression events once the first non-empty response arrives
+  useEffect(() => {
+    const { pinned, agents, skills } = recs;
+    if (pinned.length + agents.length + skills.length === 0 || impressionFired.current) return;
+    impressionFired.current = true;
 
-  const slots = MAX_TOTAL;
-  const pinnedSlots = Math.min(pinned.length, slots);
-  const agentSlots = Math.min(agents.length, slots - pinnedSlots);
-  const skillSlots = slots - pinnedSlots - agentSlots;
+    const sid = sessionId.current;
+    const events = [
+      ...pinned.map((s: MySkill, i: number) => ({
+        item_type: "skill" as const,
+        item_key: s.skill_key,
+        signal_type: "impressioned",
+        context: { position: i, bucket: "pinned" },
+        session_id: sid,
+      })),
+      ...agents.map((a: AgentCard, i: number) => ({
+        item_type: "agent" as const,
+        item_key: a.key,
+        signal_type: "impressioned",
+        context: { position: pinned.length + i, bucket: "agent" },
+        session_id: sid,
+      })),
+      ...skills.map((s: SkillDef, i: number) => ({
+        item_type: "skill" as const,
+        item_key: s.skill_key,
+        signal_type: "impressioned",
+        context: { position: pinned.length + agents.length + i, bucket: "recommended" },
+        session_id: sid,
+      })),
+    ];
+    postSkillEvents(events);
+  }, [recs]);
 
-  const visiblePinned = pinned.slice(0, pinnedSlots);
-  const visibleAgents = agents.slice(0, agentSlots);
-  const visibleSkills = dedupedRecommended.slice(0, skillSlots);
+  const handleSkillClick = (skillKey: string, bucket: string, position: number) => {
+    postSkillEvents([{
+      item_type: "skill",
+      item_key: skillKey,
+      signal_type: "clicked",
+      context: { position, bucket },
+      session_id: sessionId.current,
+    }]);
+    onSelectSkill(skillKey);
+  };
 
-  if (visiblePinned.length + visibleAgents.length + visibleSkills.length === 0) return null;
+  const handleAgentClick = (agentKey: string, message: string, position: number) => {
+    postSkillEvents([{
+      item_type: "agent",
+      item_key: agentKey,
+      signal_type: "clicked",
+      context: { position },
+      session_id: sessionId.current,
+    }]);
+    onSendMessage(message);
+  };
+
+  const { pinned, agents, skills } = recs;
+  if (pinned.length + agents.length + skills.length === 0) return null;
 
   return (
     <div className="skill-cards">
-      {visiblePinned.map((skill) => (
+      {pinned.map((skill, i) => (
         <button
           key={skill.skill_key}
           className="skill-card skill-card--pinned"
-          onClick={() => onSelectSkill(skill.skill_key)}
+          onClick={() => handleSkillClick(skill.skill_key, "pinned", i)}
         >
           <span className="skill-card-name">{skill.scenario_name}</span>
           {skill.tagline && <span className="skill-card-tagline">{skill.tagline}</span>}
         </button>
       ))}
 
-      {visibleAgents.map((agent) => (
+      {agents.map((agent, i) => (
         <button
           key={agent.key}
           className="skill-card skill-card--agent"
-          onClick={() => onSendMessage(agent.sampleMessage)}
+          onClick={() => handleAgentClick(agent.key, agent.sampleMessage, pinned.length + i)}
         >
           <span className="skill-card-name">
             {agent.icon} {agent.label}
@@ -91,11 +100,11 @@ export function EmptyStateCards({ onSelectSkill, onSendMessage }: Props) {
         </button>
       ))}
 
-      {visibleSkills.map((skill) => (
+      {skills.map((skill, i) => (
         <button
           key={skill.skill_key}
           className="skill-card"
-          onClick={() => onSelectSkill(skill.skill_key)}
+          onClick={() => handleSkillClick(skill.skill_key, "recommended", pinned.length + agents.length + i)}
         >
           <span className="skill-card-name">{skill.scenario_name}</span>
           {skill.tagline && <span className="skill-card-tagline">{skill.tagline}</span>}

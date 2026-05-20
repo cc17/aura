@@ -423,7 +423,111 @@
 
 ---
 
+## 阶段 11：推荐系统（召回→粗排→精排→重排）
+
+**目标**：把首页 agent & skill 推荐从"静态客户端打分"升级为有反馈闭环的完整推荐流水线。
+
+### 背景
+
+原始实现在前端直接用 `scoreSkill()` 做一次性打分，没有行为数据反馈，也没有多样性控制。
+
+### 流水线设计
+
+```
+Context（用户画像 + 行为历史）
+  → Recall（角色映射 + universal + 兜底全量）
+  → Coarse Rank（每 layer 最多 2 个，保证多样性）
+  → Fine Rank（profile × 0.4 + CTR × 0.25 + affinity × 0.25 + recency × 0.1）
+  → Re-rank（pinned 强插 + cool-down 过滤）
+```
+
+### 指标体系（埋点事件）
+
+`impressioned` → `clicked` → `opened` → `started` → `completed` / `abandoned`
+
+衍生指标：CTR、激活率、完成率、放弃率、7日回访率
+
+### 任务清单
+
+**后端**
+
+- [x] `backend/memory/models.py` — 新增 `SkillSignalModel` / `UserSkillAffinityModel` ORM 模型
+- [x] `backend/services/skill_recommender.py` — 完整 4 阶段流水线；agent 定义从前端迁移到后端
+- [x] `backend/api/recommendations.py` — `GET /api/recommendations` + `POST /api/recommendations/events`
+- [x] `backend/api/router.py` — 注册 recommendations_router
+
+**前端**
+
+- [x] `frontend/src/services/api.ts` — 新增 `AgentCard` / `RecommendationResponse` 类型 + `fetchRecommendations` / `postSkillEvents`
+- [x] `frontend/src/components/EmptyStateCards.tsx` — 改为调用后端推荐接口，首次渲染时批量上报 impression，点击时上报 click
+
+### 遗留 / 后续迭代
+
+- Phase B：每日 cron 任务将 skill_signals 聚合写入 `skill_metrics_daily`（CTR / completion_rate 预计算）
+- Phase C：`user_skill_affinity.recommendation_cool_down_until` 的自动设置逻辑（短期重复推荐降权）
+- Phase D：对话结束后写回 `affinity_score`（`completed` / `abandoned` 信号更新分数）
+
+---
+
 ## 完成记录
+
+### 阶段 12 完成于 2026-05-20
+
+**完成内容**：系统 2（对话内意图触发）升级为 embedding 召回 + 精排流水线
+
+- `backend/services/skill_intent_matcher.py`：完整 System 2 流水线
+  - Stage 0：硬规则快路径（保留 keyword 配置，高置信直接命中）
+  - Stage 1：embedding 召回（消息文本向量 vs 全量 skill 向量，top-5）
+  - Stage 2：精排（semantic_sim×0.40 + profile_match×0.20 + quality×0.25 + affinity×0.15）
+  - Stage 3：置信度门槛（< 0.55 不触发，宁缺毋滥）
+  - 降级：无 embedding model 时退化回纯关键词匹配
+- `backend/main.py`：启动时后台异步预计算所有 skill 的 embedding
+- `backend/api/chat.py`：`find_by_keywords` 替换为 `match_intent`
+
+**新增文件**：
+- `backend/services/skill_intent_matcher.py`
+
+**修改文件**：
+- `backend/main.py`
+- `backend/api/chat.py`
+
+**遗留 TODO**：
+- skill reload 时重新触发 `build_skill_embeddings()`（当前只在启动时跑一次）
+- Phase 11B：cron 聚合 `skill_metrics_daily`，quality 信号将更准确
+
+---
+
+### 阶段 11 完成于 2026-05-20
+
+**完成内容**:
+- 推荐流水线从前端移至后端：Context → Recall → Coarse Rank → Fine Rank → Re-rank
+- `SkillSignalModel` / `UserSkillAffinityModel` ORM 模型（映射已有 DB 表，无需新迁移）
+- `skill_recommender.py`：4 阶段流水线 + Agent 定义从前端迁移至后端
+- `GET /api/recommendations`：返回 `{pinned, agents, skills}` 6 张卡
+- `POST /api/recommendations/events`：接收 impression / click 等事件，写入 `skill_signals`
+- 前端 `EmptyStateCards.tsx`：改为调用后端接口，首次渲染批量上报 impression，点击上报 click
+- 前端 `api.ts`：新增 `AgentCard` / `RecommendationResponse` / `SkillEvent` 类型 + 2 个 API 函数
+
+**新增文件**:
+- `backend/services/skill_recommender.py`
+- `backend/api/recommendations.py`
+
+**修改文件**:
+- `backend/memory/models.py` — 新增 SkillSignalModel / UserSkillAffinityModel
+- `backend/api/router.py` — 注册 recommendations_router
+- `frontend/src/services/api.ts` — 新增类型和 API 函数
+- `frontend/src/components/EmptyStateCards.tsx` — 调用后端推荐 + 埋点
+
+**遗留 TODO**:
+- Phase B：cron 任务将 skill_signals 聚合写入 skill_metrics_daily
+- Phase C：recommendation_cool_down_until 自动设置
+- Phase D：对话结束后根据 completed/abandoned 更新 affinity_score
+
+**用户需注意**:
+- `frontend/src/config/agents.ts` 保留但不再被 EmptyStateCards 使用，后续可删除
+- 首次无数据时 CTR / affinity 均为 0，系统退化为纯 profile 匹配，行为与之前一致
+
+---
 
 ### 阶段 0 完成于 2026-05-15
 

@@ -9,6 +9,7 @@ from backend.api.suggestions import router as suggestions_router
 from backend.api.feedback import router as feedback_router
 from backend.api.quota import router as quota_router
 from backend.api.pricing import router as pricing_router
+from backend.api.recommendations import router as recommendations_router
 from backend.api.models import router as models_router
 from backend.api.onboarding import router as onboarding_router
 from backend.api.profile import router as profile_router
@@ -32,3 +33,4 @@ api_router.include_router(suggestions_router)
 api_router.include_router(feedback_router)
 api_router.include_router(quota_router)
 api_router.include_router(pricing_router)
+api_router.include_router(recommendations_router)
