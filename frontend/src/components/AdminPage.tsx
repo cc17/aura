@@ -18,7 +18,8 @@ interface DashboardData {
   skills: {
     total: number;
     agents: number;
-    top10_30d: Array<{ skill_id: string; clicked: number; completed: number; abandoned: number }>;
+    top10_30d: Array<{ skill_key: string; name: string; clicked: number; completed: number; abandoned: number }>;
+  top_agents_30d: Array<{ agent_key: string; clicked: number }>;
     funnel_30d: Record<string, number>;
     exec_success_rate_pct: number | null;
   };
@@ -53,6 +54,11 @@ export function AdminPage() {
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [lastRefresh, setLastRefresh] = useState<Date | null>(null);
+
+  useEffect(() => {
+    document.body.style.overflow = "auto";
+    return () => { document.body.style.overflow = ""; };
+  }, []);
 
   const load = async (t: string) => {
     setLoading(true);
@@ -201,11 +207,33 @@ export function AdminPage() {
                   </thead>
                   <tbody>
                     {data.skills.top10_30d.map((row) => (
-                      <tr key={row.skill_id}>
-                        <td>{row.skill_id}</td>
+                      <tr key={row.skill_key}>
+                        <td>{row.name}</td>
                         <td>{row.clicked}</td>
                         <td>{row.completed}</td>
                         <td>{row.abandoned}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+
+            {data.skills.top_agents_30d.length > 0 && (
+              <div className="admin-table-wrap">
+                <h3 className="admin-funnel-title">Top Agent 使用（近 30 天）</h3>
+                <table className="admin-table">
+                  <thead>
+                    <tr>
+                      <th>Agent</th>
+                      <th>点击</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {data.skills.top_agents_30d.map((row) => (
+                      <tr key={row.agent_key}>
+                        <td>{row.agent_key}</td>
+                        <td>{row.clicked}</td>
                       </tr>
                     ))}
                   </tbody>

@@ -348,7 +348,8 @@ class SkillSignalModel(Base):
 
     id: Mapped[int] = mapped_column(Integer, primary_key=True, autoincrement=True)
     user_id: Mapped[int] = mapped_column(Integer, ForeignKey("users.id"), nullable=False)
-    skill_id: Mapped[int] = mapped_column(Integer, ForeignKey("industry_skills.id"), nullable=False)
+    skill_id: Mapped[int | None] = mapped_column(Integer, ForeignKey("industry_skills.id"), nullable=True)
+    agent_key: Mapped[str | None] = mapped_column(String(100), nullable=True)
     signal_type: Mapped[str] = mapped_column(String(30), nullable=False)
     context: Mapped[dict | None] = mapped_column(JSONB, nullable=True, default=dict)
     session_id: Mapped[str | None] = mapped_column(String(100), nullable=True)

@@ -109,10 +109,12 @@ async def dashboard(session: AsyncSession = Depends(_get_session)):
         await session.execute(select(func.count()).select_from(IndustrySkillModel))
     ).scalar_one()
 
-    # --- Skill usage top 10 (by completed signals, 30 days) ---
+    # --- Skill usage top 10 (by total signals, 30 days) — joined with skill name ---
     top_skills_rows = await session.execute(
         select(
             SkillSignalModel.skill_id,
+            IndustrySkillModel.scenario_name,
+            IndustrySkillModel.skill_key,
             func.count().label("total"),
             func.sum(
                 case((SkillSignalModel.signal_type == "completed", 1), else_=0)
@@ -124,14 +126,16 @@ async def dashboard(session: AsyncSession = Depends(_get_session)):
                 case((SkillSignalModel.signal_type == "abandoned", 1), else_=0)
             ).label("abandoned"),
         )
+        .join(IndustrySkillModel, IndustrySkillModel.id == SkillSignalModel.skill_id)
         .where(SkillSignalModel.created_at >= thirty_days_ago)
-        .group_by(SkillSignalModel.skill_id)
+        .group_by(SkillSignalModel.skill_id, IndustrySkillModel.scenario_name, IndustrySkillModel.skill_key)
         .order_by(func.count().desc())
         .limit(10)
     )
     top_skills = [
         {
-            "skill_id": r.skill_id,
+            "skill_key": r.skill_key,
+            "name": r.scenario_name,
             "clicked": int(r.clicked or 0),
             "completed": int(r.completed or 0),
             "abandoned": int(r.abandoned or 0),
@@ -139,10 +143,35 @@ async def dashboard(session: AsyncSession = Depends(_get_session)):
         for r in top_skills_rows
     ]
 
-    # --- Overall skill funnel (30 days) ---
+    # --- Top agents (by click signals, 30 days) ---
+    top_agents_rows = await session.execute(
+        select(
+            SkillSignalModel.agent_key,
+            func.count().label("total"),
+            func.sum(
+                case((SkillSignalModel.signal_type == "clicked", 1), else_=0)
+            ).label("clicked"),
+        )
+        .where(
+            SkillSignalModel.created_at >= thirty_days_ago,
+            SkillSignalModel.agent_key.is_not(None),
+        )
+        .group_by(SkillSignalModel.agent_key)
+        .order_by(func.count().desc())
+        .limit(10)
+    )
+    top_agents = [
+        {"agent_key": r.agent_key, "clicked": int(r.clicked or 0)}
+        for r in top_agents_rows
+    ]
+
+    # --- Overall skill funnel (30 days, skills only) ---
     funnel_rows = await session.execute(
         select(SkillSignalModel.signal_type, func.count().label("cnt"))
-        .where(SkillSignalModel.created_at >= thirty_days_ago)
+        .where(
+            SkillSignalModel.created_at >= thirty_days_ago,
+            SkillSignalModel.skill_id.is_not(None),
+        )
         .group_by(SkillSignalModel.signal_type)
     )
     funnel = {r.signal_type: r.cnt for r in funnel_rows}
@@ -180,6 +209,7 @@ async def dashboard(session: AsyncSession = Depends(_get_session)):
             "total": total_skills,
             "agents": _AGENT_COUNT,
             "top10_30d": top_skills,
+            "top_agents_30d": top_agents,
             "funnel_30d": funnel,
             "exec_success_rate_pct": exec_success_rate,
         },

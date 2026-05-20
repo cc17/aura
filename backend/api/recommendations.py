@@ -78,5 +78,15 @@ async def record_events(
                         session_id=ev.session_id,
                     )
                 )
-        # agent events are accepted silently — agents have no DB skill_id yet
+        elif ev.item_type == "agent":
+            session.add(
+                SkillSignalModel(
+                    user_id=current_user.id,
+                    skill_id=None,
+                    agent_key=ev.item_key,
+                    signal_type=ev.signal_type,
+                    context=ev.context or {},
+                    session_id=ev.session_id,
+                )
+            )
     await session.commit()
