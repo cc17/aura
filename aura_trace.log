@@ -264,3 +264,13 @@
 {"event": "memory.extract_memories", "ts": 1779205025.479365, "elapsed_ms": 2455.8, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
 {"event": "profile.update", "ts": 1779205026.612919, "elapsed_ms": 1126.2, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
 {"event": "suggestions.generate", "ts": 1779205031.0942569, "elapsed_ms": 4481.2, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "request_start", "ts": 1779206620.188855, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "msg_len": 7, "has_file": false, "model": "openai/doubao-1-5-pro-32k-250115", "is_new_conv": false}
+{"event": "memory.build_context", "ts": 1779206620.252312, "elapsed_ms": 62.5, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "history_msgs": 14}
+{"event": "intent_classify", "ts": 1779206620.255413, "path": "no_keyword_path", "route": "general_agent", "query_preview": "好像已经恢复了"}
+{"event": "reflection_done", "ts": 1779206622.7301278, "agent": "general_agent", "loop": 0, "score": -1, "approved": true, "critique": ""}
+{"event": "request_done", "ts": 1779206622.733641, "conv_id": "2d7c77b73b6f4597829cedf04711d31c", "elapsed_ms": 2544.6, "response_tokens": 53, "response_chars": 83}
+{"event": "memory.summarize", "ts": 1779206622.78158, "elapsed_ms": 16.3, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_facts", "ts": 1779206634.3708649, "elapsed_ms": 13532.1, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "memory.extract_memories", "ts": 1779206635.684614, "elapsed_ms": 1310.9, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "profile.update", "ts": 1779206636.3336809, "elapsed_ms": 641.3, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
+{"event": "suggestions.generate", "ts": 1779206640.746639, "elapsed_ms": 4412.8, "conv_id": "2d7c77b73b6f4597829cedf04711d31c"}
