@@ -21,5 +21,8 @@ frontend/dist/
 .DS_Store
 Thumbs.db
 
+# Logs
+*.log
+
 # Deployment (contains credentials)
 deploy.sh

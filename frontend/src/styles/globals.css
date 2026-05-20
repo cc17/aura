@@ -2745,7 +2745,6 @@ body {
 
 /* Main layout */
 .admin-wrap {
-  min-height: 100vh;
   background: var(--bg);
   color: var(--text);
   padding: 0;

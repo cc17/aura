@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Conversation } from "../types";
 import { fetchConversations, deleteConversation } from "../services/api";
+import logoUrl from "../assets/logo.svg";
 
 const PLAN_LABELS: Record<string, string> = {
   free: "Free",
@@ -75,7 +76,10 @@ export function Sidebar({
       <div className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
         {/* Aura + collapse */}
         <div className="sidebar-top">
-          <span className="sidebar-brand">Aura</span>
+          <span className="sidebar-brand">
+            <img src={logoUrl} alt="Aura" className="sidebar-logo" />
+            Aura
+          </span>
           <button className="sidebar-collapse-btn" onClick={onToggle} title="收起侧边栏">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L6 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
