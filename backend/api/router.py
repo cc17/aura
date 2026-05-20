@@ -11,6 +11,7 @@ from backend.api.quota import router as quota_router
 from backend.api.pricing import router as pricing_router
 from backend.api.recommendations import router as recommendations_router
 from backend.api.models import router as models_router
+from backend.api.admin import router as admin_router
 from backend.api.onboarding import router as onboarding_router
 from backend.api.profile import router as profile_router
 from backend.api.skills import router as skills_router
@@ -34,3 +35,4 @@ api_router.include_router(feedback_router)
 api_router.include_router(quota_router)
 api_router.include_router(pricing_router)
 api_router.include_router(recommendations_router)
+api_router.include_router(admin_router)

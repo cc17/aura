@@ -14,6 +14,7 @@ import { ProfilePage } from "./components/ProfilePage";
 import { FeedbackButton } from "./components/FeedbackButton";
 import { QuotaBanner } from "./components/QuotaBanner";
 import { PricingModal } from "./components/PricingModal";
+import { AdminPage } from "./components/AdminPage";
 import { useChat } from "./hooks/useChat";
 import { useModels } from "./hooks/useModels";
 import { useAuth } from "./hooks/useAuth";
@@ -23,6 +24,8 @@ import { useConversationRoute } from "./hooks/useConversationRoute";
 import { useEffect, useMemo, useState, useCallback } from "react";
 
 export default function App() {
+  if (window.location.pathname === "/admin") return <AdminPage />;
+
   const { state, user, handleLogin, handleRegister, handleLogout, markOnboarded } = useAuth();
   const {
     messages,

@@ -18,6 +18,12 @@ _trace_handler.setFormatter(logging.Formatter("%(message)s"))  # raw JSON lines
 logging.getLogger("aura.trace").addHandler(_trace_handler)
 logging.getLogger("aura.trace").propagate = False  # don't duplicate to root logger
 
+# Route ERROR+ to aura_error.log so the admin dashboard can surface them
+_error_handler = logging.FileHandler("aura_error.log")
+_error_handler.setLevel(logging.ERROR)
+_error_handler.setFormatter(logging.Formatter("%(asctime)s %(name)s %(levelname)s %(message)s"))
+logging.getLogger().addHandler(_error_handler)
+
 app = FastAPI(title="Aura", version="0.1.0")
 
 app.add_middleware(
