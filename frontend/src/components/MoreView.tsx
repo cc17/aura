@@ -52,7 +52,7 @@ export function MoreView({ onBack }: Props) {
       await pinSkill(skillKey, pinned);
       setMySkills(await fetchMySkills());
     } catch (e: unknown) {
-      setPinError(e instanceof Error ? e.message : "操作失败");
+      setPinError(e instanceof Error ? e.message : "Action failed");
     } finally {
       setLoadingPin(null);
     }
@@ -60,13 +60,12 @@ export function MoreView({ onBack }: Props) {
 
   return (
     <div className="more-view">
-      {/* Left nav */}
       <div className="more-view-nav">
-        <button className="more-view-back" onClick={onBack} title="返回对话">
+        <button className="more-view-back" onClick={onBack} title="Back to chat">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <path d="M9 3L5 7.5L9 12" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
           </svg>
-          返回
+          Back
         </button>
 
         <div className="more-view-nav-section">
@@ -78,7 +77,7 @@ export function MoreView({ onBack }: Props) {
               <path d="M7.5 1.5L9.02 5.46L13.25 5.87L10.12 8.69L11.05 12.87L7.5 10.75L3.95 12.87L4.88 8.69L1.75 5.87L5.98 5.46L7.5 1.5Z"
                 stroke="currentColor" strokeWidth="1.3" strokeLinejoin="round"/>
             </svg>
-            Skill
+            Skills
           </button>
           <button
             className={`more-view-nav-item ${tab === "connect" ? "active" : ""}`}
@@ -95,25 +94,23 @@ export function MoreView({ onBack }: Props) {
         </div>
       </div>
 
-      {/* Right content */}
       <div className="more-view-content">
         {tab === "connect" && (
           <div className="more-view-section">
             <h2 className="more-view-title">Connect</h2>
-            <p className="more-view-desc">连接你的工作工具，让 Aura 融入你的工作流。</p>
-            <div className="more-view-empty">即将开放</div>
+            <p className="more-view-desc">Connect your tools and bring Aura into your workflow.</p>
+            <div className="more-view-empty">Coming soon</div>
           </div>
         )}
 
         {tab === "skill" && (
           <div className="more-view-section">
-            {/* Sub-tabs */}
             <div className="skill-subtabs">
               <button
                 className={`skill-subtab ${skillTab === "my" ? "active" : ""}`}
                 onClick={() => setSkillTab("my")}
               >
-                我的技能
+                My Skills
                 {mySkills.length > 0 && (
                   <span className="skill-subtab-count">{mySkills.length}</span>
                 )}
@@ -122,11 +119,10 @@ export function MoreView({ onBack }: Props) {
                 className={`skill-subtab ${skillTab === "market" ? "active" : ""}`}
                 onClick={() => setSkillTab("market")}
               >
-                技能市场
+                Skill Market
               </button>
             </div>
 
-            {/* 我的技能 */}
             {skillTab === "my" && (
               <div className="my-skills">
                 {pinError && (
@@ -134,18 +130,18 @@ export function MoreView({ onBack }: Props) {
                 )}
                 {mySkills.length === 0 ? (
                   <div className="my-skills-empty">
-                    <p>还没有添加任何技能</p>
+                    <p>No skills added yet</p>
                     <button
                       className="my-skills-goto-market"
                       onClick={() => setSkillTab("market")}
                     >
-                      去技能市场逛逛 →
+                      Browse the Skill Market →
                     </button>
                   </div>
                 ) : (
                   <>
                     {mySkills.some((s) => s.is_pinned) && (
-                      <div className="my-skills-group-label">已固定到首屏（最多 4 个）</div>
+                      <div className="my-skills-group-label">Pinned to home screen (max 4)</div>
                     )}
                     <div className="my-skills-list">
                       {mySkills.map((skill) => (
@@ -159,7 +155,7 @@ export function MoreView({ onBack }: Props) {
                           <div className="my-skill-actions">
                             <button
                               className={`my-skill-pin-btn ${skill.is_pinned ? "active" : ""}`}
-                              title={skill.is_pinned ? "取消固定" : "固定到首屏"}
+                              title={skill.is_pinned ? "Unpin" : "Pin to home screen"}
                               onClick={() => handlePin(skill.skill_key, !skill.is_pinned)}
                               disabled={loadingPin === skill.skill_key}
                             >
@@ -169,7 +165,7 @@ export function MoreView({ onBack }: Props) {
                             </button>
                             <button
                               className="my-skill-remove-btn"
-                              title="移除"
+                              title="Remove"
                               onClick={() => handleRemove(skill.skill_key)}
                             >
                               <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
@@ -185,7 +181,6 @@ export function MoreView({ onBack }: Props) {
               </div>
             )}
 
-            {/* 技能市场 */}
             {skillTab === "market" && (
               <div className="skill-market">
                 <div className="skill-market-grid">
@@ -196,7 +191,7 @@ export function MoreView({ onBack }: Props) {
                       onClick={() => setSelectedSkill(skill)}
                     >
                       {skill.is_added && (
-                        <span className="market-skill-added-badge">已添加</span>
+                        <span className="market-skill-added-badge">Added</span>
                       )}
                       <div className="market-skill-name">{skill.scenario_name}</div>
                       {skill.tagline && (

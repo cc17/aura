@@ -38,7 +38,6 @@ export function Sidebar({
       .catch(console.error);
   }, [currentConversationId]);
 
-  // Close popover on outside click
   useEffect(() => {
     if (!menuOpen) return;
     const handler = (e: MouseEvent) => {
@@ -64,7 +63,7 @@ export function Sidebar({
   return (
     <>
       {!isOpen && (
-        <button className="sidebar-float-toggle" onClick={onToggle} title="展开侧边栏">
+        <button className="sidebar-float-toggle" onClick={onToggle} title="Expand sidebar">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <rect x="2" y="3.5" width="12" height="1.2" rx="0.6" fill="currentColor"/>
             <rect x="2" y="7.4" width="8" height="1.2" rx="0.6" fill="currentColor"/>
@@ -74,48 +73,43 @@ export function Sidebar({
       )}
 
       <div className={`sidebar ${isOpen ? "sidebar-open" : ""}`}>
-        {/* Aura + collapse */}
         <div className="sidebar-top">
           <span className="sidebar-brand">
             <img src={logoUrl} alt="Aura" className="sidebar-logo" />
             Aura
           </span>
-          <button className="sidebar-collapse-btn" onClick={onToggle} title="收起侧边栏">
+          <button className="sidebar-collapse-btn" onClick={onToggle} title="Collapse sidebar">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
               <path d="M10 3L6 8L10 13" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round"/>
             </svg>
           </button>
         </div>
 
-        {/* 新对话 */}
         <button className="sidebar-action-btn" onClick={onNew}>
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <path d="M7.5 2v11M2 7.5h11" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
           </svg>
-          新对话
+          New Chat
         </button>
 
-        {/* 知识库 */}
         <button className="sidebar-action-btn sidebar-action-btn--secondary">
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <rect x="2" y="2" width="11" height="11" rx="2" stroke="currentColor" strokeWidth="1.4"/>
             <path d="M5 5.5h5M5 7.5h5M5 9.5h3" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round"/>
           </svg>
-          知识库
+          Knowledge
         </button>
 
-        {/* 更多 */}
         <button className="sidebar-action-btn sidebar-action-btn--secondary" onClick={onMore}>
           <svg width="15" height="15" viewBox="0 0 15 15" fill="none">
             <circle cx="7.5" cy="7.5" r="1.2" fill="currentColor"/>
             <circle cx="2.5" cy="7.5" r="1.2" fill="currentColor"/>
             <circle cx="12.5" cy="7.5" r="1.2" fill="currentColor"/>
           </svg>
-          更多
+          More
         </button>
 
-        {/* 历史会话 */}
-        <div className="sidebar-section-label">历史会话</div>
+        <div className="sidebar-section-label">History</div>
         <div className="sidebar-list">
           {conversations.map((conv) => (
             <div
@@ -128,18 +122,17 @@ export function Sidebar({
               <button
                 className="sidebar-item-delete"
                 onClick={(e) => handleDelete(e, conv.id)}
-                title="删除"
+                title="Delete"
               >
                 &#215;
               </button>
             </div>
           ))}
           {conversations.length === 0 && (
-            <p className="sidebar-empty">暂无历史对话</p>
+            <p className="sidebar-empty">No conversations yet</p>
           )}
         </div>
 
-        {/* User menu — bottom of sidebar */}
         <div className="user-menu-wrap" ref={menuRef}>
           {menuOpen && (
             <div className="user-menu-popover">
@@ -151,7 +144,7 @@ export function Sidebar({
                   <circle cx="7.5" cy="5" r="2.5" stroke="currentColor" strokeWidth="1.3"/>
                   <path d="M2 13c0-2.5 2.5-4.5 5.5-4.5S13 10.5 13 13" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                 </svg>
-                我的档案
+                My Profile
               </button>
               {plan === "free" && (
                 <>
@@ -164,7 +157,7 @@ export function Sidebar({
                       <path d="M7.5 2v8M4 7l3.5-4L11 7" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
                       <path d="M2 13h11" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                     </svg>
-                    升级计划
+                    Upgrade Plan
                   </button>
                 </>
               )}
@@ -178,7 +171,7 @@ export function Sidebar({
                   <path d="M10 10l3-2.5L10 5" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round" strokeLinejoin="round"/>
                   <path d="M13 7.5H6" stroke="currentColor" strokeWidth="1.3" strokeLinecap="round"/>
                 </svg>
-                退出登录
+                Sign out
               </button>
             </div>
           )}
@@ -193,7 +186,7 @@ export function Sidebar({
               <span className="user-menu-name">{username}</span>
               <span className="user-menu-plan-label">
                 <span className={`user-menu-plan-dot user-menu-plan-dot--${plan}`} />
-                {PLAN_LABELS[plan] ?? plan} 计划
+                {PLAN_LABELS[plan] ?? plan} Plan
               </span>
             </span>
           </button>

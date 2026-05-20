@@ -46,7 +46,7 @@ export function SuggestionsBar({ refreshKey, onSendQuestion, onOpenSkill }: Prop
 
   return (
     <div className="suggestions-bar">
-      <span className="suggestions-label">💡 你可能还想…</span>
+      <span className="suggestions-label">💡 You might also want to…</span>
       <div className="suggestions-list">
         {suggestions.map((s, i) => (
           <button

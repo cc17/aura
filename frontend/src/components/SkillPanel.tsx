@@ -41,7 +41,7 @@ export function SkillPanel({ skill, onSubmit, onClose }: Props) {
     <div className="skill-panel">
       <div className="skill-panel-header">
         <div>
-          <span className="skill-card-label">技能</span>
+          <span className="skill-card-label">Skill</span>
           <span className="skill-panel-title">{skill.scenario_name}</span>
         </div>
         <button className="skill-panel-close" onClick={onClose} disabled={loading}>✕</button>
@@ -78,12 +78,8 @@ export function SkillPanel({ skill, onSubmit, onClose }: Props) {
           </div>
         ))}
 
-        <button
-          type="submit"
-          className="skill-submit"
-          disabled={loading}
-        >
-          {loading ? "执行中…" : "执行技能"}
+        <button type="submit" className="skill-submit" disabled={loading}>
+          {loading ? "Running…" : "Run Skill"}
         </button>
       </form>
     </div>

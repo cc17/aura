@@ -110,7 +110,7 @@ export default function App() {
   if (state === "loading") {
     return (
       <div className="app" style={{ alignItems: "center", justifyContent: "center" }}>
-        <span style={{ color: "var(--text-sub)" }}>加载中…</span>
+        <span style={{ color: "var(--text-sub)" }}>Loading…</span>
       </div>
     );
   }
@@ -167,8 +167,8 @@ export default function App() {
                 <div className="empty-state">
                   <div className="empty-state-greeting">
                     <div className="empty-state-avatar">✦</div>
-                    <h2 className="empty-state-title">你好，{user?.username}</h2>
-                    <p className="empty-state-sub">今天想做什么？</p>
+                    <h2 className="empty-state-title">Hello, {user?.username}</h2>
+                    <p className="empty-state-sub">What can I help you with today?</p>
                   </div>
                   <EmptyStateCards
                     onSelectSkill={(skillKey) => setPendingSkillKey(skillKey)}
@@ -208,7 +208,7 @@ export default function App() {
                   <>
                     {quota?.plan === "free" && quota.remaining > 0 && quota.remaining <= 5 && (
                       <div className="quota-warning">
-                        今日剩余 {quota.remaining} 次免费对话
+                        {quota.remaining} free conversations left today
                       </div>
                     )}
                     <ChatInput
@@ -219,7 +219,7 @@ export default function App() {
                   </>
                 )}
               </div>
-              <p className="chat-disclaimer">Aura 也可能会犯错，请核查重要信息。</p>
+              <p className="chat-disclaimer">Aura can make mistakes. Verify important information.</p>
             </>
           )}
         </div>

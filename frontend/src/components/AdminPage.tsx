@@ -99,12 +99,12 @@ export function AdminPage() {
             <input
               className="admin-login-input"
               type="password"
-              placeholder="输入 Admin Token"
+              placeholder="Enter admin token"
               value={input}
               onChange={(e) => setInput(e.target.value)}
               autoFocus
             />
-            <button className="admin-login-btn" type="submit">进入后台</button>
+            <button className="admin-login-btn" type="submit">Enter Dashboard</button>
           </form>
           {error && <p className="admin-login-error">{error}</p>}
         </div>
@@ -115,21 +115,21 @@ export function AdminPage() {
   return (
     <div className="admin-wrap">
       <header className="admin-header">
-        <h1 className="admin-title">Aura 后台</h1>
+        <h1 className="admin-title">Aura Admin</h1>
         <div className="admin-header-right">
           {lastRefresh && (
             <span className="admin-refresh-time">
-              更新于 {lastRefresh.toLocaleTimeString()}
+              Updated {lastRefresh.toLocaleTimeString("en-US")}
             </span>
           )}
           <button className="admin-btn-sm" onClick={() => load(token)} disabled={loading}>
-            {loading ? "加载中…" : "刷新"}
+            {loading ? "Loading…" : "Refresh"}
           </button>
           <button
             className="admin-btn-sm admin-btn-sm--danger"
             onClick={() => { localStorage.removeItem(ADMIN_TOKEN_KEY); setToken(""); setData(null); }}
           >
-            退出
+            Sign out
           </button>
         </div>
       </header>
@@ -140,12 +140,12 @@ export function AdminPage() {
         <div className="admin-content">
           {/* Users */}
           <section className="admin-section">
-            <h2 className="admin-section-title">用户</h2>
+            <h2 className="admin-section-title">Users</h2>
             <div className="admin-cards">
-              <StatCard label="注册用户" value={data.users.total} />
-              <StatCard label="今日活跃 (DAU)" value={data.users.dau} />
-              <StatCard label="今日新增" value={data.users.new_today} />
-              <StatCard label="本周新增" value={data.users.new_this_week} />
+              <StatCard label="Registered" value={data.users.total} />
+              <StatCard label="DAU" value={data.users.dau} />
+              <StatCard label="New today" value={data.users.new_today} />
+              <StatCard label="New this week" value={data.users.new_this_week} />
             </div>
             <div className="admin-plan-dist">
               {Object.entries(data.users.plan_distribution).map(([plan, cnt]) => (
@@ -158,22 +158,22 @@ export function AdminPage() {
 
           {/* Activity */}
           <section className="admin-section">
-            <h2 className="admin-section-title">今日活动</h2>
+            <h2 className="admin-section-title">Today's Activity</h2>
             <div className="admin-cards">
-              <StatCard label="新增对话" value={data.activity.conversations_today} />
-              <StatCard label="用户消息数" value={data.activity.messages_today} />
+              <StatCard label="New conversations" value={data.activity.conversations_today} />
+              <StatCard label="User messages" value={data.activity.messages_today} />
             </div>
           </section>
 
           {/* Skills */}
           <section className="admin-section">
-            <h2 className="admin-section-title">Skill & Agent</h2>
+            <h2 className="admin-section-title">Skills & Agents</h2>
             <div className="admin-cards">
-              <StatCard label="Skill 总数" value={data.skills.total} />
-              <StatCard label="Agent 数量" value={data.skills.agents} />
+              <StatCard label="Total skills" value={data.skills.total} />
+              <StatCard label="Agents" value={data.skills.agents} />
               {data.skills.exec_success_rate_pct !== null && (
                 <StatCard
-                  label="执行成功率"
+                  label="Exec success rate"
                   value={`${data.skills.exec_success_rate_pct}%`}
                 />
               )}
@@ -181,7 +181,7 @@ export function AdminPage() {
 
             {/* Funnel */}
             <div className="admin-funnel">
-              <h3 className="admin-funnel-title">信号漏斗（近 30 天）</h3>
+              <h3 className="admin-funnel-title">Signal Funnel (last 30 days)</h3>
               <div className="admin-funnel-items">
                 {["impressioned", "clicked", "started", "completed", "abandoned"].map((sig) => (
                   <div key={sig} className="admin-funnel-item">
@@ -195,14 +195,14 @@ export function AdminPage() {
             {/* Top skills */}
             {data.skills.top10_30d.length > 0 && (
               <div className="admin-table-wrap">
-                <h3 className="admin-funnel-title">Top Skill 使用（近 30 天）</h3>
+                <h3 className="admin-funnel-title">Top Skills (last 30 days)</h3>
                 <table className="admin-table">
                   <thead>
                     <tr>
                       <th>Skill</th>
-                      <th>点击</th>
-                      <th>完成</th>
-                      <th>放弃</th>
+                      <th>Clicked</th>
+                      <th>Completed</th>
+                      <th>Abandoned</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -221,13 +221,13 @@ export function AdminPage() {
 
             {data.skills.top_agents_30d.length > 0 && (
               <div className="admin-table-wrap">
-                <h3 className="admin-funnel-title">Top Agent 使用（近 30 天）</h3>
+                <h3 className="admin-funnel-title">Top Agents (last 30 days)</h3>
                 <table className="admin-table">
                   <thead>
                     <tr>
                       <th>Agent</th>
-                      <th>首页点击</th>
-                      <th>实际调用</th>
+                      <th>Clicked</th>
+                      <th>Invoked</th>
                     </tr>
                   </thead>
                   <tbody>
@@ -246,9 +246,9 @@ export function AdminPage() {
 
           {/* Errors */}
           <section className="admin-section">
-            <h2 className="admin-section-title">最近报错（最多 20 条）</h2>
+            <h2 className="admin-section-title">Recent Errors (last 20)</h2>
             {data.errors.recent.length === 0 ? (
-              <p className="admin-no-errors">暂无错误日志 ✓</p>
+              <p className="admin-no-errors">No errors ✓</p>
             ) : (
               <div className="admin-error-log">
                 {data.errors.recent.map((line, i) => (

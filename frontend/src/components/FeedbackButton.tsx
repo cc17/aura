@@ -34,7 +34,7 @@ export function FeedbackButton() {
       <button
         className="feedback-fab"
         onClick={() => setOpen(true)}
-        title="给我反馈"
+        title="Send feedback"
       >
         💬
       </button>
@@ -43,15 +43,15 @@ export function FeedbackButton() {
         <div className="feedback-overlay" onClick={() => setOpen(false)}>
           <div className="feedback-modal" onClick={(e) => e.stopPropagation()}>
             <div className="feedback-header">
-              <span className="feedback-title">使用反馈</span>
+              <span className="feedback-title">Feedback</span>
               <button className="feedback-close" onClick={() => setOpen(false)}>✕</button>
             </div>
 
             {sent ? (
-              <p className="feedback-sent">感谢反馈！🎉</p>
+              <p className="feedback-sent">Thanks for your feedback! 🎉</p>
             ) : (
               <>
-                <p className="feedback-label">今天体验如何？</p>
+                <p className="feedback-label">How was your experience?</p>
                 <div className="feedback-stars">
                   {[1, 2, 3, 4, 5].map((n) => (
                     <button
@@ -66,7 +66,7 @@ export function FeedbackButton() {
 
                 <textarea
                   className="feedback-textarea"
-                  placeholder="还有什么想说的？（可选）"
+                  placeholder="Anything else? (optional)"
                   value={comment}
                   onChange={(e) => setComment(e.target.value)}
                   rows={3}
@@ -77,7 +77,7 @@ export function FeedbackButton() {
                   onClick={handleSubmit}
                   disabled={rating === 0 || sending}
                 >
-                  {sending ? "提交中…" : "提交"}
+                  {sending ? "Submitting…" : "Submit"}
                 </button>
               </>
             )}

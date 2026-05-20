@@ -7,9 +7,9 @@ interface Props {
 }
 
 const AI_LEVELS = [
-  { value: "新手", label: "新手（刚开始用 AI）" },
-  { value: "入门", label: "入门（用了 1-6 个月）" },
-  { value: "熟练", label: "熟练（用了半年以上）" },
+  { value: "Beginner", label: "Beginner (just getting started)" },
+  { value: "Intermediate", label: "Intermediate (1–6 months)" },
+  { value: "Advanced", label: "Advanced (6+ months)" },
 ];
 
 export function OnboardingModal({ onComplete }: Props) {
@@ -46,7 +46,7 @@ export function OnboardingModal({ onComplete }: Props) {
       });
       onComplete();
     } catch {
-      setError("提交失败，请重试");
+      setError("Failed to save, please try again");
     } finally {
       setLoading(false);
     }
@@ -66,11 +66,11 @@ export function OnboardingModal({ onComplete }: Props) {
 
         {step === 0 && (
           <div className="modal-step">
-            <h2 className="modal-title">你是做什么工作的？</h2>
-            <p className="modal-sub">帮我更好地理解你的工作场景</p>
+            <h2 className="modal-title">What do you do?</h2>
+            <p className="modal-sub">Help me understand your work context</p>
 
             <div className="option-group">
-              <p className="option-label">所在行业</p>
+              <p className="option-label">Industry</p>
               <div className="industry-cards">
                 {INDUSTRY_CONFIG.map((ind) => (
                   <button
@@ -87,7 +87,7 @@ export function OnboardingModal({ onComplete }: Props) {
 
             {industry && (
               <div className="option-group">
-                <p className="option-label">你的岗位</p>
+                <p className="option-label">Your role</p>
                 <div className="option-chips">
                   {availableRoles.map((r) => (
                     <button
@@ -107,15 +107,15 @@ export function OnboardingModal({ onComplete }: Props) {
               disabled={!industry || !role}
               onClick={() => setStep(1)}
             >
-              下一步
+              Next
             </button>
           </div>
         )}
 
         {step === 1 && (
           <div className="modal-step">
-            <h2 className="modal-title">你最希望我帮你解决？</h2>
-            <p className="modal-sub">可多选，之后随时可以修改</p>
+            <h2 className="modal-title">What would you like help with most?</h2>
+            <p className="modal-sub">Select all that apply — you can change these later</p>
             <div className="option-chips">
               {availablePainPoints.map((p) => (
                 <button
@@ -128,13 +128,13 @@ export function OnboardingModal({ onComplete }: Props) {
               ))}
             </div>
             <div className="modal-nav">
-              <button className="modal-back" onClick={() => setStep(0)}>上一步</button>
+              <button className="modal-back" onClick={() => setStep(0)}>Back</button>
               <button
                 className="modal-next"
                 disabled={painPoints.length === 0}
                 onClick={() => setStep(2)}
               >
-                下一步
+                Next
               </button>
             </div>
           </div>
@@ -142,8 +142,8 @@ export function OnboardingModal({ onComplete }: Props) {
 
         {step === 2 && (
           <div className="modal-step">
-            <h2 className="modal-title">你用 AI 多久了？</h2>
-            <p className="modal-sub">方便我调整回答的深度</p>
+            <h2 className="modal-title">How long have you been using AI?</h2>
+            <p className="modal-sub">This helps me calibrate my responses</p>
             <div className="option-list">
               {AI_LEVELS.map((lv) => (
                 <button
@@ -157,13 +157,13 @@ export function OnboardingModal({ onComplete }: Props) {
             </div>
             {error && <div className="auth-error">{error}</div>}
             <div className="modal-nav">
-              <button className="modal-back" onClick={() => setStep(1)}>上一步</button>
+              <button className="modal-back" onClick={() => setStep(1)}>Back</button>
               <button
                 className="modal-next"
                 disabled={!aiProficiency || loading}
                 onClick={handleFinish}
               >
-                {loading ? "保存中…" : "开始使用"}
+                {loading ? "Saving…" : "Get started"}
               </button>
             </div>
           </div>

@@ -18,13 +18,13 @@ interface ProfileField {
 type ProfileData = Record<string, string | string[] | ProfileField>;
 
 const CATEGORY_LABEL: Record<string, string> = {
-  fact: "事实",
-  preference: "偏好",
-  goal: "目标",
-  context: "背景",
+  fact: "Fact",
+  preference: "Preference",
+  goal: "Goal",
+  context: "Context",
 };
 
-const AI_PROFICIENCY_OPTIONS = ["新手", "入门", "熟练"];
+const AI_PROFICIENCY_OPTIONS = ["Beginner", "Intermediate", "Advanced"];
 
 interface Props {
   onClose: () => void;
@@ -46,7 +46,7 @@ export function ProfilePage({ onClose }: Props) {
   function fieldDisplay(key: string): string {
     const v = profile[key];
     if (!v) return "—";
-    if (Array.isArray(v)) return v.join("、");
+    if (Array.isArray(v)) return v.join(", ");
     if (typeof v === "object" && "value" in v) return (v as ProfileField).value || "—";
     return String(v);
   }
@@ -83,7 +83,7 @@ export function ProfilePage({ onClose }: Props) {
     <div className="profile-overlay" onClick={onClose}>
       <div className="profile-modal" onClick={(e) => e.stopPropagation()}>
         <div className="profile-header">
-          <h2 className="profile-title">我的档案</h2>
+          <h2 className="profile-title">My Profile</h2>
           <button className="profile-close" onClick={onClose}>✕</button>
         </div>
 
@@ -92,24 +92,23 @@ export function ProfilePage({ onClose }: Props) {
             className={`profile-tab ${tab === "profile" ? "active" : ""}`}
             onClick={() => setTab("profile")}
           >
-            画像
+            Profile
           </button>
           <button
             className={`profile-tab ${tab === "memories" ? "active" : ""}`}
             onClick={() => setTab("memories")}
           >
-            记忆 ({memories.length})
+            Memory ({memories.length})
           </button>
         </div>
 
         {tab === "profile" && (
           <div className="profile-body">
-            <p className="profile-desc">Aura 对你的了解。置信度越高，信息越可靠。手动修改的字段置信度直接变为 100%。</p>
+            <p className="profile-desc">What Aura knows about you. Higher confidence = more reliable. Manually edited fields are set to 100%.</p>
 
-            {/* Industry field — chip selector */}
             <div className="profile-field">
               <div className="profile-field-meta">
-                <span className="profile-field-label">行业</span>
+                <span className="profile-field-label">Industry</span>
                 <span className="profile-confidence">
                   {Math.round(fieldConfidence("industry") * 100)}%
                 </span>
@@ -133,10 +132,10 @@ export function ProfilePage({ onClose }: Props) {
                       onClick={() => saveField("industry", editValue)}
                       disabled={saving || !editValue}
                     >
-                      保存
+                      Save
                     </button>
                     <button className="profile-cancel-btn" onClick={() => setEditingKey(null)}>
-                      取消
+                      Cancel
                     </button>
                   </div>
                 </div>
@@ -150,16 +149,15 @@ export function ProfilePage({ onClose }: Props) {
                       setEditValue(currentIndustry);
                     }}
                   >
-                    编辑
+                    Edit
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Role field — chip selector, depends on industry */}
             <div className="profile-field">
               <div className="profile-field-meta">
-                <span className="profile-field-label">岗位</span>
+                <span className="profile-field-label">Role</span>
                 <span className="profile-confidence">
                   {Math.round(fieldConfidence("role") * 100)}%
                 </span>
@@ -187,7 +185,7 @@ export function ProfilePage({ onClose }: Props) {
                         if (e.key === "Enter") saveField("role", editValue);
                         if (e.key === "Escape") setEditingKey(null);
                       }}
-                      placeholder="输入你的岗位"
+                      placeholder="Enter your role"
                       autoFocus
                     />
                   )}
@@ -197,10 +195,10 @@ export function ProfilePage({ onClose }: Props) {
                       onClick={() => saveField("role", editValue)}
                       disabled={saving || !editValue}
                     >
-                      保存
+                      Save
                     </button>
                     <button className="profile-cancel-btn" onClick={() => setEditingKey(null)}>
-                      取消
+                      Cancel
                     </button>
                   </div>
                 </div>
@@ -215,16 +213,15 @@ export function ProfilePage({ onClose }: Props) {
                       setEditValue(cur === "—" ? "" : cur);
                     }}
                   >
-                    编辑
+                    Edit
                   </button>
                 </div>
               )}
             </div>
 
-            {/* AI proficiency — chip selector */}
             <div className="profile-field">
               <div className="profile-field-meta">
-                <span className="profile-field-label">AI 熟练度</span>
+                <span className="profile-field-label">AI Proficiency</span>
                 <span className="profile-confidence">
                   {Math.round(fieldConfidence("ai_proficiency") * 100)}%
                 </span>
@@ -248,10 +245,10 @@ export function ProfilePage({ onClose }: Props) {
                       onClick={() => saveField("ai_proficiency", editValue)}
                       disabled={saving || !editValue}
                     >
-                      保存
+                      Save
                     </button>
                     <button className="profile-cancel-btn" onClick={() => setEditingKey(null)}>
-                      取消
+                      Cancel
                     </button>
                   </div>
                 </div>
@@ -266,16 +263,15 @@ export function ProfilePage({ onClose }: Props) {
                       setEditValue(cur === "—" ? "" : cur);
                     }}
                   >
-                    编辑
+                    Edit
                   </button>
                 </div>
               )}
             </div>
 
-            {/* Pain points — plain text display with text input edit */}
             <div className="profile-field">
               <div className="profile-field-meta">
-                <span className="profile-field-label">痛点</span>
+                <span className="profile-field-label">Pain Points</span>
                 <span className="profile-confidence">
                   {Math.round(fieldConfidence("pain_points") * 100)}%
                 </span>
@@ -290,7 +286,7 @@ export function ProfilePage({ onClose }: Props) {
                       if (e.key === "Enter") saveField("pain_points", editValue);
                       if (e.key === "Escape") setEditingKey(null);
                     }}
-                    placeholder="多个痛点用顿号分隔"
+                    placeholder="Separate multiple items with commas"
                     autoFocus
                   />
                   <button
@@ -298,10 +294,10 @@ export function ProfilePage({ onClose }: Props) {
                     onClick={() => saveField("pain_points", editValue)}
                     disabled={saving}
                   >
-                    保存
+                    Save
                   </button>
                   <button className="profile-cancel-btn" onClick={() => setEditingKey(null)}>
-                    取消
+                    Cancel
                   </button>
                 </div>
               ) : (
@@ -315,7 +311,7 @@ export function ProfilePage({ onClose }: Props) {
                       setEditValue(cur === "—" ? "" : cur);
                     }}
                   >
-                    编辑
+                    Edit
                   </button>
                 </div>
               )}
@@ -326,7 +322,7 @@ export function ProfilePage({ onClose }: Props) {
         {tab === "memories" && (
           <div className="profile-body">
             {memories.length === 0 ? (
-              <p className="profile-empty">暂无记忆，多聊几句就会有了。</p>
+              <p className="profile-empty">No memories yet — keep chatting and they'll appear.</p>
             ) : (
               <div className="memories-list">
                 {memories.map((m) => (
@@ -335,14 +331,14 @@ export function ProfilePage({ onClose }: Props) {
                       <span className="memory-category">
                         {CATEGORY_LABEL[m.category] ?? m.category}
                       </span>
-                      <span className="memory-importance">重要度 {m.importance}</span>
+                      <span className="memory-importance">Importance {m.importance}</span>
                     </div>
                     <div className="memory-content-row">
                       <span className="memory-text">{m.content}</span>
                       <button
                         className="memory-delete"
                         onClick={() => handleDeleteMemory(m.id)}
-                        title="删除这条记忆"
+                        title="Delete memory"
                       >
                         ✕
                       </button>

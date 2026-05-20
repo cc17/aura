@@ -32,7 +32,7 @@ export function SkillDetailModal({ skill, onAdd, onRemove, onClose }: Props) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="skill-detail-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="skill-detail-close" onClick={onClose} title="关闭">
+        <button className="skill-detail-close" onClick={onClose} title="Close">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
           </svg>
@@ -51,12 +51,12 @@ export function SkillDetailModal({ skill, onAdd, onRemove, onClose }: Props) {
 
         {fields.length > 0 && (
           <div className="skill-detail-fields">
-            <div className="skill-detail-fields-title">需要填写</div>
+            <div className="skill-detail-fields-title">Required fields</div>
             <ul className="skill-detail-fields-list">
               {fields.map((f) => (
                 <li key={f.name}>
                   <span className="skill-field-name">{f.label}</span>
-                  {f.required && <span className="skill-field-required">必填</span>}
+                  {f.required && <span className="skill-field-required">Required</span>}
                 </li>
               ))}
             </ul>
@@ -68,7 +68,7 @@ export function SkillDetailModal({ skill, onAdd, onRemove, onClose }: Props) {
           onClick={handleToggle}
           disabled={loading}
         >
-          {loading ? "处理中…" : added ? "✓ 已添加  点击移除" : "+ 添加到我的技能"}
+          {loading ? "Processing…" : added ? "✓ Added — click to remove" : "+ Add to My Skills"}
         </button>
       </div>
     </div>

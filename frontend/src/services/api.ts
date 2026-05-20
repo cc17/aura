@@ -41,8 +41,8 @@ export async function register(username: string, password: string) {
     body: JSON.stringify({ username, password }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "注册失败" }));
-    throw new Error(err.detail || "注册失败");
+    const err = await res.json().catch(() => ({ detail: "Registration failed" }));
+    throw new Error(err.detail || "Registration failed");
   }
   return res.json();
 }
@@ -55,8 +55,8 @@ export async function login(username: string, password: string) {
     body: form.toString(),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "登录失败" }));
-    throw new Error(err.detail || "登录失败");
+    const err = await res.json().catch(() => ({ detail: "Login failed" }));
+    throw new Error(err.detail || "Login failed");
   }
   return res.json();
 }
@@ -233,8 +233,8 @@ export async function pinSkill(skillKey: string, pinned: boolean): Promise<{ ok:
     body: JSON.stringify({ pinned }),
   });
   if (!res.ok) {
-    const err = await res.json().catch(() => ({ detail: "操作失败" }));
-    throw new Error(err.detail || "操作失败");
+    const err = await res.json().catch(() => ({ detail: "Action failed" }));
+    throw new Error(err.detail || "Action failed");
   }
   return res.json();
 }

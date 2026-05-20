@@ -24,7 +24,7 @@ export function LoginPage({ onLogin, onRegister }: Props) {
         await onRegister(username, password);
       }
     } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "操作失败，请重试");
+      setError(err instanceof Error ? err.message : "Something went wrong, please try again");
     } finally {
       setLoading(false);
     }
@@ -34,20 +34,20 @@ export function LoginPage({ onLogin, onRegister }: Props) {
     <div className="auth-page">
       <div className="auth-card">
         <div className="auth-logo">Aura</div>
-        <p className="auth-tagline">比 ChatGPT 更懂你这行</p>
+        <p className="auth-tagline">The AI assistant that knows your industry</p>
 
         <div className="auth-tabs">
           <button
             className={`auth-tab ${tab === "login" ? "active" : ""}`}
             onClick={() => { setTab("login"); setError(""); }}
           >
-            登录
+            Sign in
           </button>
           <button
             className={`auth-tab ${tab === "register" ? "active" : ""}`}
             onClick={() => { setTab("register"); setError(""); }}
           >
-            注册
+            Sign up
           </button>
         </div>
 
@@ -55,7 +55,7 @@ export function LoginPage({ onLogin, onRegister }: Props) {
           <input
             className="auth-input"
             type="text"
-            placeholder="用户名"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoFocus
@@ -64,14 +64,14 @@ export function LoginPage({ onLogin, onRegister }: Props) {
           <input
             className="auth-input"
             type="password"
-            placeholder="密码（至少 6 位）"
+            placeholder="Password (min 6 characters)"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
           {error && <div className="auth-error">{error}</div>}
           <button className="auth-submit" type="submit" disabled={loading}>
-            {loading ? "处理中…" : tab === "login" ? "登录" : "注册"}
+            {loading ? "Processing…" : tab === "login" ? "Sign in" : "Sign up"}
           </button>
         </form>
       </div>

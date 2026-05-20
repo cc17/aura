@@ -14,28 +14,28 @@ const PLANS: Plan[] = [
   {
     key: "free",
     name: "Free",
-    price_label: "¥0",
+    price_label: "$0",
     period: "",
-    features: ["20 次对话 / 天", "近 30 天历史记录", "标准模型（Doubao）", "全部 24 个技能", "记忆功能"],
-    cta: "当前计划",
+    features: ["20 conversations / day", "30-day history", "Standard model (Doubao)", "All 24 skills", "Memory"],
+    cta: "Current plan",
     recommended: false,
   },
   {
     key: "pro",
     name: "Pro",
-    price_label: "¥39",
-    period: "/ 月",
-    features: ["1000 次对话 / 月", "永久历史记录", "标准 + 高级模型", "全部 24 个技能", "记忆功能"],
-    cta: "立即升级",
+    price_label: "$9",
+    period: "/ mo",
+    features: ["1,000 conversations / month", "Unlimited history", "Standard + advanced models", "All 24 skills", "Memory"],
+    cta: "Upgrade now",
     recommended: true,
   },
   {
     key: "max",
     name: "Max",
-    price_label: "¥99",
-    period: "/ 月",
-    features: ["无限次对话", "永久历史记录", "全部模型含最新版", "全部 24 个技能", "记忆功能"],
-    cta: "升级 Max",
+    price_label: "$19",
+    period: "/ mo",
+    features: ["Unlimited conversations", "Unlimited history", "All models incl. latest", "All 24 skills", "Memory"],
+    cta: "Upgrade to Max",
     recommended: false,
   },
 ];
@@ -51,14 +51,14 @@ export function PricingModal({ currentPlan, onClose }: Props) {
   return (
     <div className="modal-overlay" onClick={onClose}>
       <div className="pricing-modal" onClick={(e) => e.stopPropagation()}>
-        <button className="pricing-modal-close" onClick={onClose} title="关闭">
+        <button className="pricing-modal-close" onClick={onClose} title="Close">
           <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
             <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round"/>
           </svg>
         </button>
 
-        <h2 className="pricing-modal-title">选择适合你的计划</h2>
-        <p className="pricing-modal-sub">升级后额度立即生效，随时可取消</p>
+        <h2 className="pricing-modal-title">Choose your plan</h2>
+        <p className="pricing-modal-sub">Quota takes effect immediately. Cancel anytime.</p>
 
         <div className="pricing-cards">
           {PLANS.map((plan) => {
@@ -72,7 +72,7 @@ export function PricingModal({ currentPlan, onClose }: Props) {
                   isCurrent ? "pricing-card--current" : "",
                 ].join(" ").trim()}
               >
-                {plan.recommended && <div className="pricing-badge">推荐</div>}
+                {plan.recommended && <div className="pricing-badge">Recommended</div>}
                 <div className="pricing-card-name">{plan.name}</div>
                 <div className="pricing-card-price">
                   <span className="pricing-price-main">{plan.price_label}</span>
@@ -90,11 +90,11 @@ export function PricingModal({ currentPlan, onClose }: Props) {
                 </ul>
                 {isCurrent ? (
                   <button className="pricing-cta pricing-cta--current" disabled>
-                    当前计划
+                    Current plan
                   </button>
                 ) : upgrading === plan.key ? (
                   <div className="pricing-contact-info">
-                    请发送邮件至 <strong>hi@useaura.ai</strong> 说明升级计划，我们将在 24 小时内处理
+                    Email <strong>hi@useaura.ai</strong> to upgrade — we'll process it within 24 hours.
                   </div>
                 ) : (
                   <button
@@ -110,7 +110,7 @@ export function PricingModal({ currentPlan, onClose }: Props) {
         </div>
 
         <p className="pricing-footer">
-          有疑问？发邮件至 <a href="mailto:hi@useaura.ai">hi@useaura.ai</a>
+          Questions? Email <a href="mailto:hi@useaura.ai">hi@useaura.ai</a>
         </p>
       </div>
     </div>

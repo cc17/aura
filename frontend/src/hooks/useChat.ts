@@ -200,9 +200,9 @@ export function useChat() {
     (skillKey: string, inputData: Record<string, string>, scenarioName: string, onQuotaExceeded?: () => void) => {
       setPendingSkillKey(null);
 
-      const userContent = `【技能：${scenarioName}】\n${Object.entries(inputData)
+      const userContent = `[Skill: ${scenarioName}]\n${Object.entries(inputData)
         .filter(([, v]) => v)
-        .map(([k, v]) => `${k}：${v.slice(0, 60)}${v.length > 60 ? "…" : ""}`)
+        .map(([k, v]) => `${k}: ${v.slice(0, 60)}${v.length > 60 ? "…" : ""}`)
         .join("\n")}`;
 
       const userMsg: Message = {
@@ -244,7 +244,7 @@ export function useChat() {
           setMessages((prev) =>
             prev.map((m) =>
               m.id === assistantId
-                ? { ...m, content: m.content + `\n\n**错误:** ${err}` }
+                ? { ...m, content: m.content + `\n\n**Error:** ${err}` }
                 : m,
             ),
           );
