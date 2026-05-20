@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="120" y2="120" gradientUnits="userSpaceOnUse">
+      <stop offset="0%" stop-color="#4338CA"/>
+      <stop offset="100%" stop-color="#7C3AED"/>
+    </linearGradient>
+    <!-- soft glow behind the heart -->
+    <radialGradient id="glow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#F9A8D4" stop-opacity="0.6"/>
+      <stop offset="100%" stop-color="#F9A8D4" stop-opacity="0"/>
+    </radialGradient>
+  </defs>
+
+  <!-- Background: indigo → violet rounded square -->
+  <rect width="120" height="120" rx="22" fill="url(#bg)"/>
+
+  <!-- Soft heart glow (drawn before A so A clips it) -->
+  <ellipse cx="60" cy="47" rx="22" ry="18" fill="url(#glow)"/>
+
+  <!-- Heart: drawn before the A so the A's hollow acts as a natural clip -->
+  <path fill="#F9A8D4"
+    d="M60 62
+       C48 54 42 45 42 41
+       C42 35 46 32 51 32
+       C54 32 57 34 60 37
+       C63 34 66 32 69 32
+       C74 32 78 35 78 41
+       C78 45 72 54 60 62Z"/>
+
+  <!-- Letter A — white, evenodd so inner triangle is a hole revealing the heart -->
+  <path fill="white" fill-rule="evenodd"
+    d="M60 13 L11 100 H33 L46 68 H74 L87 100 H109 Z
+       M60 29 L47 64 H73 Z"/>
+
+  <!-- 4-pointed sparkle star, upper-right (outside the A, on the gradient bg) -->
+  <path fill="white" opacity="0.90"
+    d="M91 19
+       L93.2 26.5
+       L101 28.8
+       L93.2 31.1
+       L91 38.5
+       L88.8 31.1
+       L81 28.8
+       L88.8 26.5
+       Z"/>
+</svg>
