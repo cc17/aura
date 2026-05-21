@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { Conversation } from "../types";
 import { fetchConversations, deleteConversation } from "../services/api";
-import logoUrl from "../assets/logo.svg";
+import logoUrl from "../assets/logo.png";
 
 const PLAN_LABELS: Record<string, string> = {
   free: "Free",
@@ -76,7 +76,7 @@ export function Sidebar({
         <div className="sidebar-top">
           <span className="sidebar-brand">
             <img src={logoUrl} alt="Aura" className="sidebar-logo" />
-            Aura
+            <span className="sidebar-logo-text">aura</span>
           </span>
           <button className="sidebar-collapse-btn" onClick={onToggle} title="Collapse sidebar">
             <svg width="16" height="16" viewBox="0 0 16 16" fill="none">

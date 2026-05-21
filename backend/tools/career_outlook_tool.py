@@ -72,7 +72,7 @@ class CareerOutlookTool(BaseTool):
 
         results = data.get("organic", [])
         if not results:
-            return f"未找到关于 **{major}** 专业的就业前景数据，请尝试其他关键词。"
+            return f"No employment outlook data found for **{major}**. Try different keywords."
 
         formatted = _format_results(results, major, location)
         cache_store.set(cache_key, formatted)
@@ -82,10 +82,10 @@ class CareerOutlookTool(BaseTool):
 def _format_results(
     results: list[dict[str, Any]], major: str, location: str
 ) -> str:
-    header = f"**{major}** 专业"
+    header = f"Employment outlook for **{major}**"
     if location:
-        header += f"（{location}）"
-    header += "就业前景参考信息：\n"
+        header += f" in {location}"
+    header += ":\n"
 
     lines = [header]
     for i, item in enumerate(results, 1):
@@ -96,6 +96,6 @@ def _format_results(
         if snippet:
             lines.append(f"   {snippet}")
         if link:
-            lines.append(f"   [查看详情]({link})")
+            lines.append(f"   [Read more]({link})")
         lines.append("")
     return "\n".join(lines)

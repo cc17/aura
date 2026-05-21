@@ -58,11 +58,19 @@ class SearchJobsTool(BaseTool):
             logger.info("search_jobs cache hit for key=%s", cache_key)
             return cached
 
-        search_query = f"{query} {location} 招聘".strip()
+        # Detect language: if query is mostly ASCII, search globally; otherwise target China
+        is_english = sum(c.isascii() for c in query) / max(len(query), 1) > 0.8
+        if is_english:
+            search_query = f"{query} {location} jobs hiring".strip()
+            gl, hl = "us", "en"
+        else:
+            search_query = f"{query} {location} 招聘".strip()
+            gl, hl = "cn", "zh-cn"
+
         payload = {
             "q": search_query,
-            "gl": "cn",
-            "hl": "zh-cn",
+            "gl": gl,
+            "hl": hl,
             "num": 10,
         }
         headers = {
@@ -90,7 +98,7 @@ class SearchJobsTool(BaseTool):
 
 
 def _format_results(results: list[dict[str, Any]]) -> str:
-    lines = ["找到以下匹配职位：\n"]
+    lines = ["Matching positions found:\n"]
     for i, item in enumerate(results, 1):
         title = item.get("title", "Unknown Position")
         link = item.get("link", "")
@@ -99,6 +107,6 @@ def _format_results(results: list[dict[str, Any]]) -> str:
         if snippet:
             lines.append(f"   {snippet}")
         if link:
-            lines.append(f"   [查看详情]({link})")
+            lines.append(f"   [View posting]({link})")
         lines.append("")
     return "\n".join(lines)

@@ -166,7 +166,7 @@ export default function App() {
               {messages.length === 0 && !pendingSkillKey ? (
                 <div className="empty-state">
                   <div className="empty-state-greeting">
-                    <div className="empty-state-avatar">✦</div>
+                    <div className="empty-state-avatar">A</div>
                     <h2 className="empty-state-title">Hello, {user?.username}</h2>
                     <p className="empty-state-sub">What can I help you with today?</p>
                   </div>

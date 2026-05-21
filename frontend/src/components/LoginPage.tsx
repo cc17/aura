@@ -1,5 +1,6 @@
 import { useState } from "react";
 import type { FormEvent } from "react";
+import logoUrl from "../assets/logo.png";
 
 interface Props {
   onLogin: (username: string, password: string) => Promise<unknown>;
@@ -33,7 +34,9 @@ export function LoginPage({ onLogin, onRegister }: Props) {
   return (
     <div className="auth-page">
       <div className="auth-card">
-        <div className="auth-logo">Aura</div>
+        <div className="auth-logo">
+          <img src={logoUrl} alt="Aura" />
+        </div>
         <p className="auth-tagline">The AI assistant that knows your industry</p>
 
         <div className="auth-tabs">

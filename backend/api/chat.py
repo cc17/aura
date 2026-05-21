@@ -88,15 +88,20 @@ async def chat(
     async def event_stream():
         yield {"event": "conversation_id", "data": json.dumps({"conversation_id": conv_id})}
 
-        # Skill intent detection — embedding recall + fine rank (System 2 pipeline)
+        # Skill intent detection — only on the first message of a conversation.
+        # In ongoing conversations the agent router handles topic changes; running
+        # intent matching mid-conversation causes false positives (e.g. a job-search
+        # follow-up mentioning "大数据" incorrectly triggering data_explainer).
         from backend.services.skill_intent_matcher import match_intent
-        async with session_factory() as intent_session:
-            matched_skill = await match_intent(
-                message=message,
-                user_id=user_id,
-                profile=current_user.profile or {},
-                session=intent_session,
-            )
+        matched_skill = None
+        if is_first:
+            async with session_factory() as intent_session:
+                matched_skill = await match_intent(
+                    message=message,
+                    user_id=user_id,
+                    profile=current_user.profile or {},
+                    session=intent_session,
+                )
         if matched_skill:
             trace("skill_match", skill_key=matched_skill["skill_key"], query_preview=message[:60])
             yield {
