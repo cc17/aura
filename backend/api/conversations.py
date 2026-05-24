@@ -54,24 +54,34 @@ async def list_conversations(
 
 
 @router.delete("/conversations/{conversation_id}")
-async def delete_conversation(conversation_id: str):
+async def delete_conversation(
+    conversation_id: str,
+    current_user: UserModel = Depends(get_current_user),
+):
     async with get_session_factory()() as session:
         repo = SQLAlchemyConversationRepo(session)
         conv = await repo.get_conversation(conversation_id)
         if not conv:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if conv.user_id is not None and conv.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Access denied")
         await repo.archive_conversation(conversation_id)
         await session.commit()
         return {"ok": True}
 
 
 @router.get("/conversations/{conversation_id}")
-async def get_conversation(conversation_id: str):
+async def get_conversation(
+    conversation_id: str,
+    current_user: UserModel = Depends(get_current_user),
+):
     async with get_session_factory()() as session:
         repo = SQLAlchemyConversationRepo(session)
         conv = await repo.get_conversation(conversation_id)
         if not conv:
             raise HTTPException(status_code=404, detail="Conversation not found")
+        if conv.user_id is not None and conv.user_id != current_user.id:
+            raise HTTPException(status_code=403, detail="Access denied")
         messages = await repo.get_messages(conversation_id)
         return {
             "id": conv.id,

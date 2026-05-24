@@ -16,9 +16,31 @@ const AGENT_DISPLAY: Record<string, string> = {
 };
 
 function MarkdownLink({ href, children, ...rest }: ComponentPropsWithoutRef<"a">) {
+  // Block javascript: and data: URIs
+  if (href && /^(javascript|data):/i.test(href)) {
+    return <>{children}</>;
+  }
   if (href && href.startsWith("/api/files/")) {
     const segments = href.split("/");
-    const filename = segments.length > 4 ? decodeURIComponent(segments[4]) : "file";
+    // Strip query string (?t=token) before extension check
+    const rawSegment = segments.length > 4 ? decodeURIComponent(segments[4]) : "file";
+    const filename = rawSegment.split("?")[0];
+    const isHtml = filename.toLowerCase().endsWith(".html");
+    if (isHtml) {
+      return (
+        <a
+          href={href}
+          className="download-btn"
+          onClick={(e) => {
+            e.preventDefault();
+            window.dispatchEvent(new CustomEvent("aura:preview", { detail: { url: href, filename } }));
+          }}
+          {...rest}
+        >
+          {children}
+        </a>
+      );
+    }
     return (
       <a href={href} className="download-btn" download={filename} {...rest}>
         {children}

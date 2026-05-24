@@ -6,19 +6,23 @@ MAX_FILE_SIZE = 2 * 1024 * 1024  # 2 MB
 
 SUPPORTED_EXTENSIONS = {".txt", ".md", ".pdf", ".docx", ".doc"}
 
+# Magic byte signatures for binary formats
+_PDF_MAGIC = b"%PDF"
+_DOCX_MAGIC = b"PK\x03\x04"  # ZIP container (DOCX/XLSX/PPTX)
+
 
 def extract_text(filename: str, data: bytes) -> str:
     """Extract plain text from an uploaded file.
 
     Args:
         filename: Original filename (used to determine format).
-        data: Raw file bytes.
+        data: Raw file bytes (caller must enforce MAX_FILE_SIZE before calling).
 
     Returns:
         Extracted text content.
 
     Raises:
-        ValueError: If the file is too large or the format is unsupported.
+        ValueError: If the file is too large, format is unsupported, or magic bytes mismatch.
     """
     if len(data) > MAX_FILE_SIZE:
         raise ValueError(f"File too large ({len(data)} bytes). Maximum is {MAX_FILE_SIZE} bytes.")
@@ -28,8 +32,12 @@ def extract_text(filename: str, data: bytes) -> str:
     if ext in (".txt", ".md"):
         return data.decode("utf-8", errors="replace")
     elif ext == ".pdf":
+        if not data.startswith(_PDF_MAGIC):
+            raise ValueError("File does not appear to be a valid PDF.")
         return _extract_pdf(data)
     elif ext in (".docx", ".doc"):
+        if not data.startswith(_DOCX_MAGIC):
+            raise ValueError("File does not appear to be a valid DOCX.")
         return _extract_docx(data)
     else:
         raise ValueError(f"Unsupported file format: {ext}")

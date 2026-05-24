@@ -183,6 +183,11 @@ class SQLAlchemyConversationRepo:
             conv.archived_at = None
             await self._session.flush()
 
+    async def set_pending_agent(self, conversation_id: str, agent: str) -> None:
+        conv = await self.get_conversation(conversation_id)
+        if conv:
+            conv.pending_agent = agent
+            await self._session.flush()
 
     # --- User Facts (cross-conversation) ---
 

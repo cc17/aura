@@ -7,9 +7,12 @@ Results are cached by URL for 30 minutes.
 
 from __future__ import annotations
 
+import ipaddress
 import logging
 import re
+import socket
 from typing import Any
+from urllib.parse import urlparse
 
 import httpx
 
@@ -22,6 +25,31 @@ _CACHE_TTL = 1800  # 30 min
 _MAX_CHARS = 4_000
 
 _BOILERPLATE_TAGS = {"nav", "footer", "header", "aside", "script", "style", "noscript", "iframe"}
+
+# Private / link-local IP ranges that must not be reachable from the scraper (SSRF protection)
+_BLOCKED_NETWORKS = [
+    ipaddress.ip_network("127.0.0.0/8"),      # loopback
+    ipaddress.ip_network("10.0.0.0/8"),       # private
+    ipaddress.ip_network("172.16.0.0/12"),    # private
+    ipaddress.ip_network("192.168.0.0/16"),   # private
+    ipaddress.ip_network("169.254.0.0/16"),   # link-local / AWS metadata
+    ipaddress.ip_network("100.64.0.0/10"),    # shared address space
+    ipaddress.ip_network("::1/128"),           # IPv6 loopback
+    ipaddress.ip_network("fc00::/7"),          # IPv6 unique local
+]
+
+
+async def _is_ssrf_target(url: str) -> bool:
+    """Return True if the resolved IP falls in a private/blocked range."""
+    import asyncio
+    try:
+        host = urlparse(url).hostname or ""
+        loop = asyncio.get_event_loop()
+        ip_str = await loop.run_in_executor(None, socket.gethostbyname, host)
+        ip = ipaddress.ip_address(ip_str)
+        return any(ip in net for net in _BLOCKED_NETWORKS)
+    except Exception:
+        return True  # block on resolution failure
 
 
 def _extract_text(html: str, url: str) -> str:
@@ -75,6 +103,8 @@ class UrlScraperTool(BaseTool):
             return "Error: url is required."
         if not url.startswith(("http://", "https://")):
             return "Error: url must start with http:// or https://"
+        if await _is_ssrf_target(url):
+            return "Error: access to this URL is not permitted."
 
         cache_key = cache_store.make_key("url_scraper", url)
         cached = cache_store.get(cache_key)

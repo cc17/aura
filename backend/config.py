@@ -17,7 +17,7 @@ class Settings(BaseSettings):
 
     # Auth
     secret_key: str = "change-me-to-a-random-secret"
-    access_token_expire_minutes: int = 60 * 24 * 7  # 7 days
+    access_token_expire_minutes: int = 60 * 24  # 24 hours
     admin_token: str = ""  # set AURA_ADMIN_TOKEN in .env to enable admin dashboard
 
     # Memory / context management

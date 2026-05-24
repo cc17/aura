@@ -24,5 +24,8 @@ Thumbs.db
 # Logs
 *.log
 
+# Generated files (disk-backed file store)
+generated_files/
+
 # Deployment (contains credentials)
 deploy.sh

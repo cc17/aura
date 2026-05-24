@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import hmac
 import pathlib
 from datetime import datetime, timedelta, timezone
 from typing import Annotated
@@ -32,7 +33,7 @@ async def _require_admin(authorization: Annotated[str, Header()] = ""):
     token = settings.admin_token
     if not token:
         raise HTTPException(status_code=403, detail="Admin token not configured")
-    if authorization != f"Bearer {token}":
+    if not hmac.compare_digest(authorization, f"Bearer {token}"):
         raise HTTPException(status_code=403, detail="Invalid admin token")
 
 
@@ -197,8 +198,11 @@ async def dashboard(session: AsyncSession = Depends(_get_session)):
     # --- Recent errors ---
     recent_errors: list[str] = []
     if _ERROR_LOG.exists():
+        import re as _re
+        _log_line = _re.compile(r"^\d{4}-\d{2}-\d{2}")
         lines = _ERROR_LOG.read_text(encoding="utf-8", errors="replace").splitlines()
-        recent_errors = [l for l in lines if l.strip()][-20:]
+        # Only include top-level log entries (start with timestamp), drop stack trace lines
+        recent_errors = [l for l in lines if l.strip() and _log_line.match(l)][-20:]
 
     return {
         "users": {

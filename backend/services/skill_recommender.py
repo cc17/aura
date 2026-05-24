@@ -18,6 +18,33 @@ from backend.services.skill_registry import all_skills, get_skill_by_id, list_sk
 
 logger = logging.getLogger(__name__)
 
+# Pain point label → Chinese keywords for matching against Chinese skill names/taglines
+_PAIN_POINT_CN: dict[str, str] = {
+    # Student
+    "Exam Prep": "备考 考试",
+    "Thesis Writing": "论文 毕业",
+    "Job Applications": "求职 简历 实习",
+    "Essay Practice": "写作 申论",
+    "Cover Letters": "求职信 简历",
+    "Study Abroad": "留学 文书",
+    # Legal
+    "Contract Review": "合同 审查",
+    "Legal Drafting": "法律文书 起草",
+    "Case Research": "案件 调研",
+    "Trial Prep": "庭审",
+    "Client Communication": "客户 沟通",
+    "Case Management": "案件管理",
+    # Healthcare
+    "Medical Records": "病历",
+    "Patient Communication": "患者",
+    "Literature Review": "文献",
+    "Discharge Summary": "出院",
+    "Case Discussion": "病例",
+    # Tech
+    "Weekly Reports": "周报",
+    "Meeting Notes": "会议纪要",
+}
+
 MAX_TOTAL = 6
 _MAX_PER_LAYER = 2  # diversity cap per skill layer in coarse rank
 
@@ -53,8 +80,10 @@ _AGENTS: list[_AgentDef] = [
         tagline="找工作、改简历、分析 JD",
         sample_message="帮我看看求职方向，我想了解一下适合我的岗位",
         universal=False,
-        pain_point_keywords=("简历", "求职", "找工作", "投递", "offer", "跳槽", "转行", "面试", "招聘", "实习"),
-        role_keywords=("应届", "实习生", "待业", "毕业生", "大学生"),
+        pain_point_keywords=("简历", "求职", "找工作", "投递", "offer", "跳槽", "转行", "面试", "招聘", "实习",
+                             "job applications", "cover letters", "internship"),
+        role_keywords=("应届", "实习生", "待业", "毕业生", "大学生",
+                       "undergraduate", "graduate", "phd", "international student"),
     ),
     _AgentDef(
         key="gaokao",
@@ -138,7 +167,13 @@ def _coarse_rank(candidates: list[dict]) -> list[dict]:
 def _profile_score_norm(skill: dict, industry: str, role: str, pain_points: list[str]) -> float:
     """Keyword match score, normalized to [0, 1]."""
     text = f"{skill['scenario_name']} {skill.get('tagline') or ''}".lower()
-    raw = float(sum(_W_PAIN for kw in pain_points if kw.lower() in text))
+    # Expand English pain point labels to Chinese keywords for matching Chinese skill names
+    expanded_pain: list[str] = []
+    for p in pain_points:
+        expanded_pain.append(p.lower())
+        if p in _PAIN_POINT_CN:
+            expanded_pain.extend(_PAIN_POINT_CN[p].lower().split())
+    raw = float(sum(_W_PAIN for kw in expanded_pain if kw in text))
     if role and role.lower() in text:
         raw += _W_ROLE
     if industry and industry.lower() in text:

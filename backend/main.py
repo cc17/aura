@@ -1,6 +1,6 @@
 import logging
 
-from fastapi import FastAPI
+from fastapi import FastAPI, Request, Response
 from fastapi.middleware.cors import CORSMiddleware
 
 from backend.api.router import api_router
@@ -11,6 +11,26 @@ from backend.tools.registry import registry
 
 logging.basicConfig(level=logging.DEBUG if settings.debug else logging.INFO)
 logger = logging.getLogger(__name__)
+
+if settings.debug:
+    logger.warning(
+        "AURA_DEBUG=true: SQLAlchemy will log all queries and parameters — "
+        "do NOT run with debug=true in production"
+    )
+
+if settings.secret_key == "change-me-to-a-random-secret":
+    raise RuntimeError(
+        "AURA_SECRET_KEY is not set. Set it in .env before starting the server. "
+        "Generate one with: python3 -c \"import secrets; print(secrets.token_hex(32))\""
+    )
+
+# litellm creates aiohttp sessions internally that may not close cleanly on stream
+# cancellation — suppress the cosmetic asyncio warning so it doesn't pollute logs.
+class _SuppressUnclosedSession(logging.Filter):
+    def filter(self, record: logging.LogRecord) -> bool:
+        return "Unclosed client session" not in record.getMessage()
+
+logging.getLogger("asyncio").addFilter(_SuppressUnclosedSession())
 
 # Route aura.trace events to a dedicated file for easy grep/analysis
 _trace_handler = logging.FileHandler("aura_trace.log")
@@ -33,6 +53,16 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+
+@app.middleware("http")
+async def security_headers(request: Request, call_next) -> Response:
+    response = await call_next(request)
+    response.headers["X-Content-Type-Options"] = "nosniff"
+    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["Referrer-Policy"] = "strict-origin-when-cross-origin"
+    return response
+
 
 app.include_router(api_router)
 

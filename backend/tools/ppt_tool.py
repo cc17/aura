@@ -248,7 +248,7 @@ class PptBuilderTool(BaseTool):
             return f"Error generating PowerPoint: {exc}"
 
         safe_name = filename_hint.replace(" ", "_").replace("/", "-")
-        file_id = file_store.save(
+        file_id, token = file_store.save(
             filename=f"{safe_name}.pptx",
             data=pptx_bytes,
             content_type="application/vnd.openxmlformats-officedocument.presentationml.presentation",
@@ -261,6 +261,5 @@ class PptBuilderTool(BaseTool):
             f"  Title      : {title}\n"
             f"  Slides     : {slide_count} content slides + 1 title slide\n"
             f"  Theme      : {outline.get('theme', 'modern')}\n"
-            f"  Download   : /api/files/{file_id}\n"
-            f"  File ID    : {file_id}"
+            f"  Download   : [📎 {safe_name}.pptx](/api/files/{file_id}/{safe_name}.pptx?t={token})"
         )

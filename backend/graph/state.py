@@ -11,6 +11,11 @@ class AuraState(MessagesState):
     active_agent: str = ""
     route_decision: str = ""
 
+    # Set by an agent when it needs more info from the user (multi-turn clarification).
+    # Supervisor reads this to decide whether to run the continuation check instead of
+    # re-classifying from scratch.  Cleared when the agent delivers its final answer.
+    pending_agent: str = ""
+
     # Reflection loop controls
     loop_count: int = 0       # how many times we've looped back through a worker
     critique: str = ""        # feedback injected by reflection node on retry

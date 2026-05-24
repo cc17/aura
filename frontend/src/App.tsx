@@ -15,6 +15,7 @@ import { FeedbackButton } from "./components/FeedbackButton";
 import { QuotaBanner } from "./components/QuotaBanner";
 import { PricingModal } from "./components/PricingModal";
 import { AdminPage } from "./components/AdminPage";
+import { PreviewPanel } from "./components/PreviewPanel";
 import { useChat } from "./hooks/useChat";
 import { useModels } from "./hooks/useModels";
 import { useAuth } from "./hooks/useAuth";
@@ -48,9 +49,21 @@ export default function App() {
   const [showProfile, setShowProfile] = useState(false);
   const [showPricing, setShowPricing] = useState(false);
   const [view, setView] = useState<"chat" | "more">("chat");
+  const [prefillText, setPrefillText] = useState<string | null>(null);
   const [sidebarOpen, setSidebarOpen] = useState<boolean>(
     () => localStorage.getItem("sidebar-collapsed") !== "true"
   );
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  // Listen for preview events dispatched by MessageBubble
+  useEffect(() => {
+    const handler = (e: Event) => {
+      const url = (e as CustomEvent<{ url: string }>).detail?.url;
+      if (url) setPreviewUrl(url);
+    };
+    window.addEventListener("aura:preview", handler);
+    return () => window.removeEventListener("aura:preview", handler);
+  }, []);
 
   const toggleSidebar = useCallback(() => {
     setSidebarOpen((prev) => {
@@ -77,6 +90,14 @@ export default function App() {
         .catch(() => {});
     }
   }, [state]);
+
+  // Clear chat state whenever the user logs out
+  useEffect(() => {
+    if (state === "unauthenticated") {
+      newConversation();
+      setPrefillText(null);
+    }
+  }, [state, newConversation]);
 
   // Refresh quota after each completed stream
   useEffect(() => {
@@ -173,6 +194,7 @@ export default function App() {
                   <EmptyStateCards
                     onSelectSkill={(skillKey) => setPendingSkillKey(skillKey)}
                     onSendMessage={(text) => sendMessage(text, selectedModel)}
+                    onFillTemplate={(text) => setPrefillText(text)}
                   />
                 </div>
               ) : (
@@ -215,6 +237,8 @@ export default function App() {
                       onSend={handleSend}
                       isStreaming={isStreaming}
                       onStop={stopStreaming}
+                      prefill={prefillText}
+                      onPrefillConsumed={() => setPrefillText(null)}
                     />
                   </>
                 )}
@@ -223,6 +247,10 @@ export default function App() {
             </>
           )}
         </div>
+
+        {previewUrl && (
+          <PreviewPanel url={previewUrl} onClose={() => setPreviewUrl(null)} />
+        )}
       </div>
 
       {showOnboarding && <OnboardingModal onComplete={markOnboarded} />}

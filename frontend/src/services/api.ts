@@ -144,6 +144,8 @@ export interface SkillDef {
   description: string;
   industry: string | null;
   role: string | null;
+  prompt_template: string | null;
+  starter_text: string | null;
   input_schema: { fields: Array<{ name: string; type: "text" | "textarea" | "url"; label: string; required: boolean }> };
 }
 

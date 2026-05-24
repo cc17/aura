@@ -5,9 +5,10 @@ import type { AgentCard, MySkill, RecommendationResponse, SkillDef } from "../se
 interface Props {
   onSelectSkill: (skillKey: string) => void;
   onSendMessage: (text: string) => void;
+  onFillTemplate: (text: string) => void;
 }
 
-export function EmptyStateCards({ onSelectSkill, onSendMessage }: Props) {
+export function EmptyStateCards({ onSelectSkill, onSendMessage, onFillTemplate }: Props) {
   const [recs, setRecs] = useState<RecommendationResponse>({ pinned: [], agents: [], skills: [] });
   const sessionId = useRef(crypto.randomUUID());
   const impressionFired = useRef(false);
@@ -49,15 +50,19 @@ export function EmptyStateCards({ onSelectSkill, onSendMessage }: Props) {
     postSkillEvents(events);
   }, [recs]);
 
-  const handleSkillClick = (skillKey: string, bucket: string, position: number) => {
+  const handleSkillClick = (skill: SkillDef | MySkill, bucket: string, position: number) => {
     postSkillEvents([{
       item_type: "skill",
-      item_key: skillKey,
+      item_key: skill.skill_key,
       signal_type: "clicked",
       context: { position, bucket },
       session_id: sessionId.current,
     }]);
-    onSelectSkill(skillKey);
+    if (skill.starter_text) {
+      onFillTemplate(skill.starter_text);
+    } else {
+      onSelectSkill(skill.skill_key);
+    }
   };
 
   const handleAgentClick = (agentKey: string, message: string, position: number) => {
@@ -80,7 +85,7 @@ export function EmptyStateCards({ onSelectSkill, onSendMessage }: Props) {
         <button
           key={skill.skill_key}
           className="skill-card skill-card--pinned"
-          onClick={() => handleSkillClick(skill.skill_key, "pinned", i)}
+          onClick={() => handleSkillClick(skill, "pinned", i)}
         >
           <span className="skill-card-name">{skill.scenario_name}</span>
           {skill.tagline && <span className="skill-card-tagline">{skill.tagline}</span>}
@@ -104,7 +109,7 @@ export function EmptyStateCards({ onSelectSkill, onSendMessage }: Props) {
         <button
           key={skill.skill_key}
           className="skill-card"
-          onClick={() => handleSkillClick(skill.skill_key, "recommended", pinned.length + agents.length + i)}
+          onClick={() => handleSkillClick(skill, "recommended", pinned.length + agents.length + i)}
         >
           <span className="skill-card-name">{skill.scenario_name}</span>
           {skill.tagline && <span className="skill-card-tagline">{skill.tagline}</span>}

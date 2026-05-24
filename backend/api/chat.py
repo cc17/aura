@@ -45,6 +45,8 @@ async def chat(
         conv = None
         if conversation_id:
             conv = await repo.get_conversation(conversation_id)
+            if conv and conv.user_id is not None and conv.user_id != user_id:
+                conv = None  # reject cross-user injection
         if not conv:
             conv = await repo.create_conversation(user_id=user_id)
             await session.commit()
@@ -56,7 +58,8 @@ async def chat(
         if file and file.filename:
             has_file = True
             try:
-                data = await file.read()
+                from backend.utils.file_parsers import MAX_FILE_SIZE
+                data = await file.read(MAX_FILE_SIZE + 1)
                 file_text = extract_text(file.filename, data)
                 user_content = (
                     f"[Attached file: {file.filename}]\n"
@@ -119,7 +122,11 @@ async def chat(
         token_count = 0
         assistant_message_id = str(__import__("uuid").uuid4().hex)
         used_agents: set[str] = set()
+        last_active_agent: str = ""
+        next_pending_agent: str | None = None  # captured from PENDING_AGENT event
 
+        # Read pending_agent persisted from the previous turn
+        conv_pending_agent = ""
         async with session_factory() as ctx_session:
             ctx_repo = SQLAlchemyConversationRepo(ctx_session)
             from backend.memory.manager import MemoryManager
@@ -127,22 +134,36 @@ async def chat(
             async with trace_span("memory.build_context", conv_id=conv_id) as span:
                 history = await memory.build_context(conv_id, user_id=user_id)
                 span["history_msgs"] = len(history)
+            _conv = await ctx_repo.get_conversation(conv_id)
+            if _conv:
+                conv_pending_agent = _conv.pending_agent or ""
+        trace("pending_agent_read", conv_id=conv_id, value=conv_pending_agent)
 
         try:
-            async for event in agent.run(history=history, model=model):
-                if event.event == StreamEventType.TEXT_DELTA:
-                    chunk = event.data.get("text", "")
-                    full_response += chunk
-                    token_count += len(chunk.split())
-                if event.event == StreamEventType.DONE:
-                    stream_completed = True
-                if event.event == StreamEventType.AGENT_START:
-                    agent_name = event.data.get("agent", "")
-                    if agent_name and agent_name not in ("clarify", "general_agent"):
-                        used_agents.add(agent_name)
+            async with asyncio.timeout(120):
+                async for event in agent.run(history=history, model=model, pending_agent=conv_pending_agent):
+                    if event.event == StreamEventType.TEXT_DELTA:
+                        chunk = event.data.get("text", "")
+                        full_response += chunk
+                        token_count += len(chunk.split())
+                    if event.event == StreamEventType.DONE:
+                        stream_completed = True
+                    if event.event == StreamEventType.AGENT_START:
+                        agent_name = event.data.get("agent", "")
+                        if agent_name and agent_name not in ("clarify", "general_agent"):
+                            used_agents.add(agent_name)
+                            last_active_agent = agent_name
+                    if event.event == StreamEventType.PENDING_AGENT:
+                        next_pending_agent = event.data.get("agent", "")
+                        continue  # internal event — don't forward to frontend
 
-                yield {"event": event.event.value, "data": json.dumps(event.data)}
+                    yield {"event": event.event.value, "data": json.dumps(event.data)}
 
+        except asyncio.TimeoutError:
+            elapsed = round((time.perf_counter() - t_start) * 1000, 1)
+            logger.warning("chat stream timeout after %.0fms conv=%s", elapsed, conv_id)
+            yield {"event": "error", "data": json.dumps({"message": "搜索超时（超过120秒），请换一个更具体的问题试试"})}
+            return
         except asyncio.CancelledError:
             elapsed = round((time.perf_counter() - t_start) * 1000, 1)
             trace("request_cancel", conv_id=conv_id, elapsed_ms=elapsed)
@@ -166,12 +187,25 @@ async def chat(
             response_chars=len(full_response),
         )
 
+        # If core.py never emitted PENDING_AGENT (e.g. streaming agent where on_chain_end
+        # doesn't expose output dict), fall back to heuristic: short response with '?'/'？'
+        # from a non-general agent → likely a clarification question.
+        if next_pending_agent is None:
+            has_q = "?" in full_response or "？" in full_response
+            if (last_active_agent and has_q and len(full_response) < 600):
+                next_pending_agent = last_active_agent
+            else:
+                next_pending_agent = ""
+
         async with session_factory() as save_session:
             save_repo = SQLAlchemyConversationRepo(save_session)
             await save_repo.add_message(
                 conv_id,
                 Message(role=Role.ASSISTANT, content=full_response),
             )
+            # Persist pending_agent so supervisor can resume multi-turn clarification next turn
+            trace("pending_agent_save", conv_id=conv_id, value=next_pending_agent, response_chars=len(full_response))
+            await save_repo.set_pending_agent(conv_id, next_pending_agent)
             await save_session.commit()
 
         async def _background_memory_tasks():
@@ -182,8 +216,6 @@ async def chat(
                     mgr = MemoryManager(bg_repo)
                     async with trace_span("memory.summarize", conv_id=conv_id):
                         await mgr.maybe_summarize(conv_id)
-                    async with trace_span("memory.extract_facts", conv_id=conv_id):
-                        await mgr.extract_and_save_facts(conv_id)
                     await bg_session.commit()
 
                 # Phase 4: extract long-term memories into user_memories table

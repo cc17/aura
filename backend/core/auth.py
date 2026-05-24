@@ -3,12 +3,14 @@
 from __future__ import annotations
 
 import bcrypt
+import hmac
 from datetime import datetime, timedelta, timezone
-from typing import AsyncGenerator
+from typing import Annotated, AsyncGenerator
 
-from fastapi import Depends, HTTPException, status
+import jwt
+from jwt.exceptions import InvalidTokenError
+from fastapi import Depends, Header, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
-from jose import JWTError, jwt
 from sqlalchemy.ext.asyncio import AsyncSession
 
 from backend.config import settings
@@ -68,10 +70,19 @@ async def get_current_user(
     try:
         payload = jwt.decode(token, settings.secret_key, algorithms=[_ALGORITHM])
         user_id = int(payload["sub"])
-    except (JWTError, KeyError, ValueError):
+    except (InvalidTokenError, KeyError, ValueError):
         raise credentials_exc
 
     user = await session.get(UserModel, user_id)
     if user is None:
         raise credentials_exc
     return user
+
+
+async def require_admin(authorization: Annotated[str, Header(alias="authorization")] = "") -> None:
+    """FastAPI dependency: requires a valid AURA_ADMIN_TOKEN in the Authorization header."""
+    token = settings.admin_token
+    if not token:
+        raise HTTPException(status_code=403, detail="Admin token not configured")
+    if not hmac.compare_digest(authorization, f"Bearer {token}"):
+        raise HTTPException(status_code=403, detail="Invalid admin token")

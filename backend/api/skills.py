@@ -270,6 +270,8 @@ async def execute_skill(
         conv = None
         if body.conversation_id:
             conv = await repo.get_conversation(body.conversation_id)
+            if conv and conv.user_id is not None and conv.user_id != user_id:
+                conv = None  # reject cross-user injection
         if not conv:
             conv = await repo.create_conversation(user_id=user_id)
             await conv_session.commit()

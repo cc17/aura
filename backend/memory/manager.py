@@ -81,18 +81,6 @@ class MemoryManager:
                 result_messages.append(persona_msg)
                 used_tokens += persona_tokens
 
-        # 0b. User facts (cross-conversation, legacy) as system message
-        facts = await self._repo.get_all_facts()
-        if facts:
-            facts_text = "\n".join(f"- {f.content}" for f in facts)
-            facts_msg = Message(
-                role=Role.SYSTEM,
-                content=f"[User profile — remembered across conversations]\n{facts_text}",
-            )
-            facts_tokens = count_message_tokens("system", facts_msg.content)
-            result_messages.append(facts_msg)
-            used_tokens += facts_tokens
-
         # 1. Summary as system message
         if conv.summary:
             summary_msg = Message(

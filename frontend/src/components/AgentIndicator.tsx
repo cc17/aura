@@ -6,12 +6,14 @@ const AGENT_LABELS: Record<string, string> = {
   gaokao_agent:   "Gaokao",
 };
 
+const isDebug = new URLSearchParams(window.location.search).get("debug") === "ys";
+
 interface AgentIndicatorProps {
   activeAgent: string | null;
 }
 
 export function AgentIndicator({ activeAgent }: AgentIndicatorProps) {
-  if (!activeAgent) return null;
+  if (!isDebug || !activeAgent) return null;
 
   const label = AGENT_LABELS[activeAgent] || activeAgent;
 

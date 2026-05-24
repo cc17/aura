@@ -59,6 +59,7 @@ class StreamEventType(str, Enum):
     SKILL_MATCH = "skill_match"  # intent router detected a skill; frontend should open skill panel
     DONE = "done"
     ERROR = "error"
+    PENDING_AGENT = "pending_agent"  # internal: tells chat.py which agent to re-route to next turn
 
 
 class StreamEvent(BaseModel):

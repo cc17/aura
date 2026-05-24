@@ -41,10 +41,10 @@ class ExportDocxTool(BaseTool):
             filename = f"{filename}.docx"
 
         docx_bytes = build_docx(content)
-        file_id = file_store.save(
+        file_id, token = file_store.save(
             filename=filename,
             data=docx_bytes,
             content_type="application/vnd.openxmlformats-officedocument.wordprocessingml.document",
         )
 
-        return f"[📎 下载 {filename}](/api/files/{file_id}/{filename})"
+        return f"[📎 下载 {filename}](/api/files/{file_id}/{filename}?t={token})"

@@ -49,17 +49,39 @@ def create_worker_node(
                 )
             )
 
+        tools_were_called = False
         for _ in range(MAX_TOOL_ROUNDS):
             response: AIMessage = await llm_with_tools.ainvoke(messages)
             messages.append(response)
 
             if not response.tool_calls:
+                # If the model returned an empty response after tool calls, nudge it once
+                content = response.content if isinstance(response.content, str) else ""
+                if not content.strip() and len(messages) > 2:
+                    logger.warning("%s: empty response after tool calls — nudging", agent_name)
+                    messages.append(
+                        HumanMessage(content="请根据以上工具调用结果，立即给出你的完整回答。")
+                    )
+                    continue
+
+                # Detect clarification: agent asked a question without calling any tools.
+                # Set pending_agent so the supervisor knows to use continuation detection
+                # for the user's next reply, rather than re-classifying from scratch.
+                # Check both ASCII "?" and full-width Chinese "？".
+                has_question = "?" in content or "？" in content
+                is_clarification = (
+                    not tools_were_called
+                    and has_question
+                    and len(content) < 600
+                )
                 return {
                     "messages": [response],
                     "active_agent": agent_name,
-                    "critique": "",  # clear critique after use
+                    "pending_agent": agent_name if is_clarification else "",
+                    "critique": "",
                 }
 
+            tools_were_called = True
             tool_messages = []
             for tc in response.tool_calls:
                 tool = tools_by_name.get(tc["name"])
@@ -74,10 +96,11 @@ def create_worker_node(
                 tool_messages.append(ToolMessage(content=str(result), tool_call_id=tc["id"]))
             messages.extend(tool_messages)
 
-        # Exceeded tool rounds — return whatever we have
+        # Exceeded tool rounds — return whatever we have (task done, clear pending)
         return {
             "messages": messages[len(state["messages"]) + 1 :],
             "active_agent": agent_name,
+            "pending_agent": "",
             "critique": "",
         }
 

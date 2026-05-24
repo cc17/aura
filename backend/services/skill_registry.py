@@ -31,6 +31,7 @@ def _to_dict(skill: IndustrySkillModel) -> dict:
         "tagline": skill.tagline,
         "trigger_keywords": skill.trigger_keywords or [],
         "prompt_template": skill.prompt_template,
+        "starter_text": skill.starter_text,
         "input_schema": skill.input_schema,
         "example_output": skill.example_output,
         "is_universal": skill.is_universal,

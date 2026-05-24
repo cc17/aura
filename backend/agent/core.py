@@ -43,6 +43,7 @@ _TOOL_THINKING_LABELS: dict[str, str] = {
     "search_jobs":     "💼 搜索职位",
     "resume_advisor":  "📋 分析简历",
     "ppt_builder":     "📊 生成PPT",
+    "html_ppt_builder": "📊 生成演示文稿",
     "find_schools":    "🏫 查询院校",
     "score_to_rank":   "📈 换算位次",
     "career_outlook":  "🔭 分析就业",
@@ -91,11 +92,13 @@ class AgentCore:
         self,
         history: list[Message],
         model: str | None = None,
+        pending_agent: str = "",
     ) -> AsyncIterator[StreamEvent]:
         graph = get_graph()
         lc_messages = _convert_history(history)
         input_state = {
             "messages": lc_messages,
+            "pending_agent": pending_agent,
             "loop_count": 0,
             "critique": "",
             "reflection_done": False,
@@ -107,6 +110,7 @@ class AgentCore:
         _tool_start_times: dict[str, float] = {}  # run_id → start time
         _direct_mode: bool = False  # True when streaming general_agent without buffer
         _done_sent: bool = False
+        _pending_agent: str | None = None  # captured from worker on_chain_end, persisted by chat.py
 
         try:
             async for event in graph.astream_events(input_state, version="v2"):
@@ -127,6 +131,39 @@ class AgentCore:
                         yield StreamEvent(event=StreamEventType.DONE, data={})
                         _done_sent = True
                     continue
+
+                # ── non-streaming node output → buffer ───────────────────
+                # Agents that use llm.ainvoke() (not astream) never emit
+                # on_chat_model_stream, so _iter_buffer has no TEXT_DELTA.
+                # Also capture pending_agent set by the node for persistence.
+                if (
+                    kind == "on_chain_end"
+                    and node in WORKER_AGENTS
+                    and node != "clarify"  # clarify has its own handler above
+                    and not _direct_mode
+                ):
+                    output_data = event.get("data", {}).get("output", {})
+                    if isinstance(output_data, dict):
+                        # Capture pending_agent so chat.py can persist it to DB
+                        if "pending_agent" in output_data:
+                            _pending_agent = output_data["pending_agent"]
+
+                        msgs = output_data.get("messages", [])
+                        if msgs:
+                            last_msg = msgs[-1]
+                            content = getattr(last_msg, "content", None)
+                            if content and isinstance(content, str):
+                                # Only buffer if LLM streaming hasn't already filled the buffer
+                                has_text_delta = any(
+                                    e.event == StreamEventType.TEXT_DELTA for e in _iter_buffer
+                                )
+                                if not has_text_delta:
+                                    _iter_buffer.append(
+                                        StreamEvent(
+                                            event=StreamEventType.TEXT_DELTA,
+                                            data={"text": content},
+                                        )
+                                    )
 
                 # ── agent start ───────────────────────────────────────────
                 if kind == "on_chain_start" and node in WORKER_AGENTS:
@@ -154,11 +191,17 @@ class AgentCore:
                     run_id = event.get("run_id", "")
                     _tool_start_times[run_id] = __import__("time").perf_counter()
 
+                    # Only log argument keys, not values — values may contain user PII
+                    _preview = (
+                        "{" + ", ".join(tool_input.keys()) + "}"
+                        if isinstance(tool_input, dict)
+                        else f"<{type(tool_input).__name__}>"
+                    )
                     trace(
                         "tool_call_start",
                         tool=name,
                         agent=_current_agent,
-                        input_preview=str(tool_input)[:120],
+                        input_preview=_preview,
                     )
 
                     # Always show tool activity as THINKING (immediate, not buffered)
@@ -243,6 +286,21 @@ class AgentCore:
                         if _is_retry:
                             yield _thinking(f"✓ 回答已优化完成（共 {loop_count} 轮迭代）")
 
+                        # Fallback: if on_chain_end didn't capture pending_agent
+                        # (happens for streaming LLM agents where output_data may omit it),
+                        # detect from the buffered response text.
+                        if _pending_agent is None and _current_agent:
+                            buffered_text = "".join(
+                                e.data.get("text", "")
+                                for e in _iter_buffer
+                                if e.event == StreamEventType.TEXT_DELTA
+                            )
+                            has_q = "?" in buffered_text or "？" in buffered_text
+                            if buffered_text and has_q and len(buffered_text) < 600:
+                                _pending_agent = _current_agent
+                            else:
+                                _pending_agent = ""
+
                         # Flush approved iteration to client.
                         # TEXT_DELTA events get a small inter-token delay so the
                         # browser receives them in separate SSE frames and React
@@ -257,7 +315,12 @@ class AgentCore:
                                 event=StreamEventType.AGENT_END,
                                 data={"agent": _current_agent},
                             )
-                        logger.debug("Reflection gate: FLUSH agent=%s", _current_agent)
+                        if _pending_agent is not None:
+                            yield StreamEvent(
+                                event=StreamEventType.PENDING_AGENT,
+                                data={"agent": _pending_agent},
+                            )
+                        logger.debug("Reflection gate: FLUSH agent=%s pending=%r", _current_agent, _pending_agent)
                     else:
                         # Move the draft text into THINKING so the user can see
                         # what was attempted and why it was rejected — then discard

@@ -28,6 +28,7 @@ KV cache
 
 from __future__ import annotations
 
+import asyncio
 import logging
 from typing import Any
 
@@ -48,7 +49,7 @@ from backend.llm.langchain_bridge import create_chat_model
 
 logger = logging.getLogger(__name__)
 
-_MAX_LOOPS = 3
+_MAX_LOOPS = 2
 
 # ─── Supervisor prompt ────────────────────────────────────────────────────────
 
@@ -67,6 +68,59 @@ SUPERVISOR_PROMPT = (
     "Reply with ONLY the agent name. No other text."
 )
 
+# ─── Continuation detection (lite model) ─────────────────────────────────────
+
+_CONTINUATION_SYS = (
+    "You are a conversation state detector. "
+    "The AI assistant is in the middle of helping the user with a specific task "
+    "(e.g. gathering info for a research report, clarifying PPT requirements). "
+    "Given the recent conversation and the user's new message, decide:\n\n"
+    "- \"continue\" — user is still working on the same task: providing info, "
+    "asking follow-ups, adjusting requirements, or staying on topic\n"
+    "- \"switch\" — user is clearly starting a completely different task\n\n"
+    "Reply with EXACTLY one word: continue OR switch"
+)
+
+
+async def _check_continuation(messages: list, last_user_text: str) -> bool:
+    """Return True if the user's new message continues the current pending task.
+
+    Uses the lite (fast, cheap) model for a binary continue/switch classification.
+    Defaults to True (continue) on any error to avoid dropping user context.
+    """
+    lite_llm = create_chat_model(settings.lite_model)
+
+    # Build compact history from last few exchanges (exclude the latest user message)
+    history_parts: list[str] = []
+    for m in messages[-7:-1]:
+        if not hasattr(m, "content"):
+            continue
+        role = "User" if getattr(m, "type", "") == "human" else "AI"
+        snippet = str(m.content or "")[:300]
+        history_parts.append(f"{role}: {snippet}")
+
+    user_prompt = (
+        f"Recent conversation:\n{'---'.join(history_parts)}\n\n"
+        f"User's new message: {last_user_text[:300]}"
+    )
+
+    try:
+        resp = await asyncio.wait_for(
+            lite_llm.ainvoke([
+                SystemMessage(content=_CONTINUATION_SYS),
+                HumanMessage(content=user_prompt),
+            ]),
+            timeout=5.0,
+        )
+        result = (resp.content or "").strip().lower()
+        is_continue = result.startswith("continue")
+        logger.info("Continuation check: %r → %s", last_user_text[:50], result[:20])
+        return is_continue
+    except Exception as exc:
+        logger.warning("Continuation check failed (%s), defaulting to continue", exc)
+        return True
+
+
 # ─── Reflection prompt ────────────────────────────────────────────────────────
 
 REFLECTION_PROMPT = (
@@ -75,6 +129,10 @@ REFLECTION_PROMPT = (
     "  - Completeness : Does it fully answer the user's request?\n"
     "  - Quality      : Is it well-structured, specific, and actionable?\n"
     "  - Tool usage   : Did the agent use available tools when appropriate?\n\n"
+    "**Special rule — clarification responses**: If the user's request was vague or "
+    "missing a specific topic, and the agent correctly asked the user for clarification "
+    "instead of guessing or calling tools, treat this as the RIGHT behavior. "
+    "Score it 8 and set CRITIQUE:none.\n\n"
     "Reply in EXACTLY this format (no other text):\n"
     "SCORE:<integer 0-10>\n"
     "CRITIQUE:<one concise sentence of the most important thing to improve, "
@@ -132,12 +190,13 @@ def _build_graph(model: str | None = None):
 
     # ── Supervisor node ───────────────────────────────────────────────────────
     async def supervisor_node(state: AuraState) -> dict[str, Any]:
+        import re as _re
+
         messages = state["messages"]
         if not messages:
             return {"route_decision": "general_agent"}
 
-        # Stage 0: detect if user is responding to our clarification question
-        import re as _re
+        # Extract last user message (and previous AI message for file-clarify check)
         last_user_text = ""
         prev_ai_text = ""
         for m in reversed(messages):
@@ -148,23 +207,38 @@ def _build_graph(model: str | None = None):
             if last_user_text and prev_ai_text:
                 break
 
+        # ── Stage 0: file-upload clarification response ───────────────────────
+        # The clarify_node asks users to choose between resume-optimization or
+        # content-analysis when they upload a file without clear intent.
+        # This is the only case-by-case check we keep — it's a structured menu
+        # response (1 / 2 / 3) that a small LLM would also handle this way.
         if "简历优化" in prev_ai_text and "内容分析" in prev_ai_text:
             resp = last_user_text.strip()
             if resp == "1" or any(kw in resp for kw in ("简历", "求职", "改", "优化", "career")):
-                logger.info("Supervisor: clarify response → career_agent")
-                return {"route_decision": "career_agent"}
-            elif resp == "2" or any(kw in resp for kw in ("分析", "内容", "提取", "整理", "research")):
-                logger.info("Supervisor: clarify response → research_agent")
-                return {"route_decision": "research_agent"}
+                logger.info("Supervisor: file-clarify response → career_agent")
+                return {"route_decision": "career_agent", "pending_agent": ""}
+            elif resp == "2" or any(kw in resp for kw in ("分析", "内容", "提取", "整理")):
+                logger.info("Supervisor: file-clarify response → research_agent")
+                return {"route_decision": "research_agent", "pending_agent": ""}
             else:
-                logger.info("Supervisor: clarify response → general_agent")
-                return {"route_decision": "general_agent"}
+                logger.info("Supervisor: file-clarify response → general_agent")
+                return {"route_decision": "general_agent", "pending_agent": ""}
 
-        # Stage 1: keyword fast-path (zero LLM cost)
-        last_user_text = last_user_text or ""  # already extracted above
+        # ── Stage 1: pending_agent continuation check (lite model) ───────────
+        # If an agent set pending_agent, it means it's in the middle of collecting
+        # info from the user.  Use the lite model to decide: continue or switch?
+        pending = state.get("pending_agent", "")
+        if pending and pending in WORKER_AGENTS:
+            is_continuation = await _check_continuation(messages, last_user_text)
+            if is_continuation:
+                trace("intent_classify", path="continuation", route=pending,
+                      query_preview=last_user_text[:60])
+                return {"route_decision": pending}
+            # User switched — clear pending and fall through to normal routing
+            trace("intent_classify", path="continuation_switch", route="tbd",
+                  query_preview=last_user_text[:60])
 
-        # Strip embedded file content before intent matching — file body pollutes
-        # keyword signals (e.g. a resume with "research experience" triggers research_agent)
+        # ── Stage 2: keyword fast-path (zero LLM cost) ───────────────────────
         has_file = "[Attached file:" in last_user_text
         user_words = _re.sub(
             r"\[Attached file:[^\]]*\]\s*<file_content>.*?</file_content>\s*",
@@ -173,53 +247,36 @@ def _build_graph(model: str | None = None):
             flags=_re.DOTALL,
         ).strip()
 
-        # If file present but user's own words carry no clear intent → ask
+        # File with no clear intent → ask user what they want
         if has_file and not has_routing_keywords(user_words):
             logger.info("Supervisor: file with ambiguous intent → clarify")
             trace("intent_classify", path="clarify", route="clarify", query_preview=user_words[:60])
-            return {"route_decision": "clarify"}
+            return {"route_decision": "clarify", "pending_agent": ""}
 
         fast: IntentResult | None = fast_classify(user_words)
         if fast is not None:
             route = f"{fast.intent}_agent"
-            logger.info(
-                "Supervisor fast-path → %s (conf=%.2f, kw=%r)",
-                route, fast.confidence, user_words[:60],
-            )
-            trace(
-                "intent_classify",
-                path="fast_path",
-                route=route,
-                confidence=fast.confidence,
-                query_preview=user_words[:60],
-            )
-            return {"route_decision": route}
+            logger.info("Supervisor fast-path → %s (conf=%.2f)", route, fast.confidence)
+            trace("intent_classify", path="fast_path", route=route,
+                  confidence=fast.confidence, query_preview=user_words[:60])
+            return {"route_decision": route, "pending_agent": ""}
 
-        # No routing keywords at all → definitely general, skip LLM
+        # No routing keywords → general, skip LLM call
         if not has_routing_keywords(user_words):
             logger.info("Supervisor no-keyword path → general_agent")
-            trace(
-                "intent_classify",
-                path="no_keyword_path",
-                route="general_agent",
-                query_preview=user_words[:60],
-            )
-            return {"route_decision": "general_agent"}
+            trace("intent_classify", path="no_keyword_path", route="general_agent",
+                  query_preview=user_words[:60])
+            return {"route_decision": "general_agent", "pending_agent": ""}
 
-        # Stage 2: LLM routing with KV cache (only for true keyword ties)
+        # ── Stage 3: LLM routing (only for true keyword ambiguity) ───────────
         llm_messages = [SystemMessage(content=SUPERVISOR_PROMPT)] + list(messages)
         response = await supervisor_cache.ainvoke(llm_supervisor, llm_messages)
         intent = map_llm_decision(response.content)
         route = f"{intent}_agent"
         logger.info("Supervisor LLM → %s (raw=%r)", route, response.content[:40])
-        trace(
-            "intent_classify",
-            path="llm_path",
-            route=route,
-            raw=response.content[:40],
-            query_preview=last_user_text[:60],
-        )
-        return {"route_decision": route}
+        trace("intent_classify", path="llm_path", route=route,
+              raw=response.content[:40], query_preview=last_user_text[:60])
+        return {"route_decision": route, "pending_agent": ""}
 
     def route_after_supervisor(state: AuraState) -> str:
         decision = state.get("route_decision", "general_agent")
@@ -252,6 +309,11 @@ def _build_graph(model: str | None = None):
                 break
 
         if not last_ai_content:
+            return {"reflection_done": True, "critique": ""}
+
+        # Fast-approve if agent produced a downloadable file — task is unambiguously complete
+        if "/api/files/" in last_ai_content:
+            trace("reflection_done", agent=active_agent, loop=loop_count, score=9, approved=True, critique="")
             return {"reflection_done": True, "critique": ""}
 
         # Use the LAST human message as the original question — the first one

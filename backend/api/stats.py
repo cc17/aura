@@ -6,7 +6,7 @@ from fastapi import APIRouter, Depends
 from sqlalchemy import func, select
 from sqlalchemy.ext.asyncio import AsyncSession
 
-from backend.core.auth import get_current_user, get_db
+from backend.core.auth import get_current_user, get_db, require_admin
 from backend.memory.models import (
     ConversationModel,
     SkillExecutionModel,
@@ -19,16 +19,13 @@ router = APIRouter()
 
 
 @router.get("/stats")
-async def stats():
+async def stats(current_user: UserModel = Depends(get_current_user)):
     """Real-time in-process counters for key paths."""
     return get_stats()
 
 
-@router.get("/stats/dashboard")
-async def dashboard(
-    current_user: UserModel = Depends(get_current_user),
-    session: AsyncSession = Depends(get_db),
-):
+@router.get("/stats/dashboard", dependencies=[Depends(require_admin)])
+async def dashboard(session: AsyncSession = Depends(get_db)):
     """Internal data dashboard — aggregates from the DB."""
     # Total users
     total_users = (await session.execute(select(func.count()).select_from(UserModel))).scalar_one()

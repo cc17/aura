@@ -1,9 +1,11 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface Props {
   onSend: (message: string, file?: File | null) => void;
   isStreaming: boolean;
   onStop: () => void;
+  prefill?: string | null;
+  onPrefillConsumed?: () => void;
 }
 
 const ACCEPT = ".pdf,.docx,.doc,.txt,.md";
@@ -14,11 +16,25 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
-export function ChatInput({ onSend, isStreaming, onStop }: Props) {
+export function ChatInput({ onSend, isStreaming, onStop, prefill, onPrefillConsumed }: Props) {
   const [input, setInput] = useState("");
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (!prefill) return;
+    setInput(prefill);
+    requestAnimationFrame(() => {
+      const ta = textareaRef.current;
+      if (!ta) return;
+      ta.style.height = "auto";
+      ta.style.height = Math.min(ta.scrollHeight, 200) + "px";
+      ta.focus();
+      ta.setSelectionRange(prefill.length, prefill.length);
+    });
+    onPrefillConsumed?.();
+  }, [prefill]);  // eslint-disable-line react-hooks/exhaustive-deps
 
   const handleSubmit = () => {
     const trimmed = input.trim();

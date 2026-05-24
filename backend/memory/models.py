@@ -52,6 +52,8 @@ class ConversationModel(Base):
         DateTime(timezone=True), default=_utcnow, onupdate=_utcnow
     )
     archived_at: Mapped[datetime | None] = mapped_column(DateTime(timezone=True), nullable=True)
+    # Which agent is waiting for the user's next reply (multi-turn clarification state)
+    pending_agent: Mapped[str] = mapped_column(String(50), default="", server_default="")
 
     messages: Mapped[list[MessageModel]] = relationship(
         back_populates="conversation", order_by="MessageModel.idx", lazy="selectin"
@@ -191,6 +193,7 @@ class IndustrySkillModel(Base):
     description: Mapped[str] = mapped_column(Text, nullable=False)
     trigger_keywords: Mapped[list] = mapped_column(ARRAY(Text), nullable=False, default=list)
     prompt_template: Mapped[str] = mapped_column(Text, nullable=False)
+    starter_text: Mapped[str | None] = mapped_column(Text, nullable=True)
     input_schema: Mapped[dict] = mapped_column(JSONB, nullable=False, default=dict)
     example_output: Mapped[str | None] = mapped_column(Text, nullable=True)
     enabled: Mapped[bool] = mapped_column(Boolean, default=True)

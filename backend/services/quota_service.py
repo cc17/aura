@@ -14,7 +14,7 @@ from backend.memory.models import UserQuotaModel
 CST = timezone(timedelta(hours=8))
 
 QUOTA_LIMITS: dict[str, int] = {
-    "free": 20,    # per day
+    "free": 50,    # per day
     "pro": 1000,   # per month
     "max": -1,     # unlimited
 }
