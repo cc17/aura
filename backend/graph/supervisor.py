@@ -172,11 +172,11 @@ def _build_graph(model: str | None = None):
     llm_reflection = create_chat_model(supervisor_model)
 
     # Worker nodes
-    general_node = create_general_agent(model=settings.default_model)
-    career_node = create_career_agent(model=settings.default_model)
-    gaokao_node = create_gaokao_agent(model=settings.default_model)
-    ppt_node = create_ppt_agent(model=settings.default_model)
-    research_node = create_research_agent(model=settings.default_model)
+    general_node = create_general_agent()
+    career_node = create_career_agent()
+    gaokao_node = create_gaokao_agent()
+    ppt_node = create_ppt_agent()
+    research_node = create_research_agent()
 
     async def clarify_node(state: AuraState) -> dict[str, Any]:
         from langchain_core.messages import AIMessage

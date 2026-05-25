@@ -3,8 +3,8 @@ from pydantic_settings import BaseSettings
 
 class Settings(BaseSettings):
     # LLM
-    default_model: str = "openai/doubao-1-5-pro-32k-250115"
-    supervisor_model: str = "openai/doubao-1-5-pro-32k-250115"
+    default_model: str = "openai/deepseek-v3-2-251201"
+    supervisor_model: str = "openai/doubao-1-5-lite-32k-250115"
     lite_model: str = "openai/doubao-1-5-lite-32k-250115"
     embedding_model: str = ""  # e.g. "openai/doubao-embedding-large-text-250515"; empty = skip embedding
     ark_api_key: str = ""

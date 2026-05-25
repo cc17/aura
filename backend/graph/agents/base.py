@@ -28,13 +28,19 @@ def create_worker_node(
     MAX_TOOL_ROUNDS rounds, then returns.  If the reflection node injected a
     critique into state.critique, it is appended to the conversation as a
     HumanMessage before the LLM call so the agent can improve its response.
+
+    The LLM is created dynamically per call so the user-selected model
+    (state["worker_model"]) takes effect without rebuilding the graph.
     """
-    llm = create_chat_model(model)
-    llm_with_tools = llm.bind_tools(tools) if tools else llm
-    tools_by_name = {t.name: t for t in tools} if tools else {}
+    tools_list = tools or []
+    tools_by_name = {t.name: t for t in tools_list}
 
     async def node(state: AuraState) -> dict[str, Any]:
         from langchain_core.messages import HumanMessage, SystemMessage, ToolMessage
+
+        resolved_model = state.get("worker_model") or model
+        llm = create_chat_model(resolved_model)
+        llm_with_tools = llm.bind_tools(tools_list) if tools_list else llm
 
         messages: list[Any] = [SystemMessage(content=system_prompt)] + list(state["messages"])
 

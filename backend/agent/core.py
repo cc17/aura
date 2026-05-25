@@ -99,6 +99,7 @@ class AgentCore:
         input_state = {
             "messages": lc_messages,
             "pending_agent": pending_agent,
+            "worker_model": model or "",
             "loop_count": 0,
             "critique": "",
             "reflection_done": False,
